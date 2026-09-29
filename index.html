@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taylor's Secret Vault 5.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Nhúng thư viện Fancybox siêu mượt -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+    <style>
+        body { background-color: #0f172a; color: #f1f5f9; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1); }
+        .masonry { column-count: 1; column-gap: 1rem; }
+        @media (min-width: 640px) { .masonry { column-count: 2; } }
+        @media (min-width: 1024px) { .masonry { column-count: 3; } }
+        .masonry-item { break-inside: avoid; margin-bottom: 1rem; }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 font-sans">
+
+    <!-- Toast Thông Báo -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- Khung đăng nhập -->
+    <div id="login-section" class="max-w-md mx-auto mt-20 glass p-10 rounded-3xl shadow-2xl">
+        <div class="text-center mb-8">
+            <span class="text-5xl mb-4 block">🔐</span>
+            <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Secret Vault 5.0</h2>
+        </div>
+        <input type="password" id="passInput" class="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-4 text-white mb-6 focus:border-blue-500 outline-none" placeholder="Nhập mật khẩu bí mật...">
+        <button onclick="savePassword()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 font-bold py-4 px-4 rounded-xl shadow-lg">Mở khóa Vault</button>
+    </div>
+
+    <!-- Giao diện chính -->
+    <div id="app-section" style="display:none;" class="max-w-6xl mx-auto">
+        
+        <!-- Bảng Tải lên Cải Tiến -->
+        <div class="glass p-8 rounded-3xl mb-8 shadow-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="w-full">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Tên Album 📁</label>
+                    <input type="text" id="albumInput" placeholder="Nhập tên album..." class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500">
+                </div>
+                
+                <div class="w-full relative group">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2 text-center text-blue-400">📄 Chọn Nhiều File</label>
+                    <input type="file" id="fileInput" multiple accept="image/*,video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="w-full bg-blue-600/20 border border-blue-500 rounded-xl p-3 text-center text-blue-400 group-hover:bg-blue-600/40 transition">Bấm chọn File</div>
+                </div>
+
+                <div class="w-full relative group">
+                    <label class="block text-sm font-semibold text-slate-300 mb-2 text-center text-emerald-400">📂 Chọn Cả Thư Mục</label>
+                    <!-- Thuộc tính webkitdirectory cho phép chọn nguyên 1 folder -->
+                    <input type="file" id="folderInput" webkitdirectory directory multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="w-full bg-emerald-600/20 border border-emerald-500 rounded-xl p-3 text-center text-emerald-400 group-hover:bg-emerald-600/40 transition">Bấm chọn Folder</div>
+                </div>
+
+                <button onclick="uploadFiles()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 px-6 py-3 rounded-xl font-bold h-[50px] shadow-lg">🚀 TẢI LÊN</button>
+            </div>
+            
+            <div class="text-xs text-slate-400 mt-3 text-center" id="selectedFilesText">Chưa chọn file nào.</div>
+
+            <!-- Thanh tiến độ -->
+            <div class="mt-6 hidden" id="progressWrapper">
+                <div class="flex justify-between text-sm font-bold text-emerald-400 mb-2">
+                    <span id="uploadStatusText">Đang tải lên...</span>
+                    <span id="uploadPercent">0%</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-3 rounded-full transition-all duration-300" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bộ Lọc -->
+        <div class="flex flex-col md:flex-row gap-6 justify-between items-center mb-8 glass p-4 rounded-2xl">
+            <div class="flex gap-3 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" id="albumTabs"></div>
+            <div class="relative w-full md:w-80 group">
+                <span class="absolute left-4 top-3 text-slate-400">🔍</span>
+                <input type="text" id="searchInput" onkeyup="renderGallery()" placeholder="Tìm kiếm..." class="w-full bg-slate-800 border border-slate-600 rounded-full pl-12 pr-4 py-3 text-white outline-none">
+            </div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="masonry" id="gallery"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "http://localhost:8000"; 
+        let allFiles = []; 
+        let currentFilter = "Tất cả";
+
+        // Cập nhật text hiển thị khi người dùng chọn file
+        document.getElementById('fileInput').addEventListener('change', updateSelectedFiles);
+        document.getElementById('folderInput').addEventListener('change', updateSelectedFiles);
+
+        function updateSelectedFiles() {
+            const f1 = document.getElementById('fileInput').files.length;
+            const f2 = document.getElementById('folderInput').files.length;
+            const total = f1 + f2;
+            document.getElementById('selectedFilesText').innerText = total > 0 ? `Đã chọn tổng cộng ${total} file để chuẩn bị tải lên.` : "Chưa chọn file nào.";
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const icon = type === "success" ? "✅" : "❌";
+            const colorClass = type === "success" ? "bg-emerald-600" : "bg-red-600";
+            toast.className = `${colorClass} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0 font-bold border border-white/20`;
+            toast.innerHTML = `<span class="text-xl">${icon}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 10);
+            setTimeout(() => { toast.classList.add('translate-x-full', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function checkLogin() {
+            if(localStorage.getItem('gallery_pass')) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('app-section').style.display = 'block';
+                loadFiles();
+            }
+        }
+        function savePassword() { localStorage.setItem('gallery_pass', document.getElementById('passInput').value); checkLogin(); }
+
+        async function loadFiles() {
+            const pass = localStorage.getItem('gallery_pass');
+            try {
+                const res = await fetch(`${BACKEND_URL}/files/?password=${pass}`);
+                if(res.status === 401) { showToast("Sai mật khẩu!", "error"); localStorage.removeItem('gallery_pass'); setTimeout(() => location.reload(), 1500); return; }
+                const data = await res.json();
+                allFiles = data.files;
+                renderGallery();
+            } catch(e) { showToast("Lỗi máy chủ!", "error"); }
+        }
+
+        function renderGallery(filterAlbum = currentFilter) {
+            currentFilter = filterAlbum;
+            const pass = localStorage.getItem('gallery_pass');
+            const gallery = document.getElementById('gallery');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Xây dựng lại Tab Albums
+            const tabsDiv = document.getElementById('albumTabs');
+            tabsDiv.innerHTML = '';
+            const albums = new Set();
+            allFiles.forEach(f => { if(f.appProperties && f.appProperties.album) albums.add(f.appProperties.album); });
+            const createBtn = (name) => {
+                const isActive = (name === currentFilter);
+                const colorClass = isActive ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-400" : "bg-slate-700/50 text-slate-300";
+                return `<button onclick="renderGallery('${name.replace(/'/g, "\\'")}')" class="whitespace-nowrap px-6 py-2 rounded-full text-sm font-bold ${colorClass}">${name}</button>`;
+            };
+            tabsDiv.innerHTML += createBtn('Tất cả');
+            albums.forEach(album => tabsDiv.innerHTML += createBtn(album));
+
+            // Render Ảnh & Video
+            gallery.innerHTML = '';
+            let renderCount = 0;
+            
+            allFiles.forEach(file => {
+                const fileAlbum = (file.appProperties && file.appProperties.album) ? file.appProperties.album : 'Khác';
+                if(filterAlbum !== "Tất cả" && fileAlbum !== filterAlbum) return;
+                if(searchTerm && !fileAlbum.toLowerCase().includes(searchTerm) && !file.name.toLowerCase().includes(searchTerm)) return;
+
+                renderCount++;
+                const streamUrl = `${BACKEND_URL}/stream/${file.id}?password=${pass}`;
+                const isVideo = file.mimeType.includes("video");
+                const delayStr = `${(renderCount * 0.05).toFixed(2)}s`;
+                
+                let mediaHTML = isVideo 
+                    ? `<div class="aspect-video relative bg-black rounded-2xl overflow-hidden"><video class="w-full h-full object-cover opacity-80"><source src="${streamUrl}" type="${file.mimeType}"></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><span class="text-white text-5xl opacity-80">▶</span></div></div>`
+                    : `<img src="${streamUrl}" loading="lazy" class="w-full rounded-2xl object-cover">`;
+
+                // Tích hợp Fancybox qua thẻ a (data-fancybox)
+                gallery.innerHTML += `
+                    <div class="masonry-item relative group animate-pop" style="animation-delay: ${delayStr}">
+                        
+                        <a href="${streamUrl}" data-fancybox="gallery" data-caption="<b>${fileAlbum}</b>: ${file.name}" ${isVideo ? 'data-type="video"' : ''} class="block cursor-pointer overflow-hidden rounded-2xl border border-slate-700/50 shadow-lg bg-slate-800 transform transition group-hover:-translate-y-1">
+                            ${mediaHTML}
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </a>
+                        
+                        <!-- Nút Xóa -->
+                        <button onclick="deleteFile('${file.id}')" class="absolute top-3 right-3 bg-red-500 hover:bg-red-400 text-white w-10 h-10 rounded-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition shadow-xl z-10" title="Xóa">🗑️</button>
+                        
+                        <div class="absolute bottom-3 left-3 bg-blue-600/90 px-3 py-1.5 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition font-bold text-white shadow-lg pointer-events-none">🏷️ ${fileAlbum}</div>
+                    </div>`;
+            });
+
+            if(renderCount === 0) {
+                gallery.innerHTML = `<div class="col-span-full flex flex-col items-center py-20"><div class="text-8xl mb-6 opacity-50">📭</div><h3 class="text-2xl font-bold mb-2">Thư mục trống</h3></div>`;
+            }
+
+            // Kích hoạt thư viện Fancybox 5
+            Fancybox.bind('[data-fancybox="gallery"]', {
+                Toolbar: { display: { left: ["infobar"], middle: ["zoomIn", "zoomOut", "toggle1to1", "rotateCCW", "rotateCW"], right: ["slideshow", "close"] } },
+                Images: { initialSize: "fit" }
+            });
+        }
+
+        async function deleteFile(fileId) {
+            if(!confirm("⚠️ Bạn có chắc chắn muốn xóa vĩnh viễn file này không?")) return;
+            const pass = localStorage.getItem('gallery_pass');
+            try {
+                const res = await fetch(`${BACKEND_URL}/delete/${fileId}?password=${pass}`, { method: 'DELETE' });
+                if(res.ok) {
+                    allFiles = allFiles.filter(f => f.id !== fileId);
+                    renderGallery(); 
+                    showToast("Đã xóa file!", "success");
+                }
+            } catch(e) { showToast("Lỗi kết nối", "error"); }
+        }
+
+        // HÀM TẢI LÊN MỚI (Hỗ trợ nhiều file & Folder)
+        function uploadFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const folderInput = document.getElementById('folderInput');
+            const album = document.getElementById('albumInput').value || "Khác";
+            
+            const formData = new FormData();
+            let count = 0;
+
+            // Nhặt file từ nút Chọn File
+            for(let i=0; i < fileInput.files.length; i++) { formData.append("files", fileInput.files[i]); count++; }
+            // Nhặt file từ nút Chọn Folder
+            for(let i=0; i < folderInput.files.length; i++) { formData.append("files", folderInput.files[i]); count++; }
+
+            if(count === 0) { showToast("Bạn chưa chọn file hoặc thư mục nào!", "error"); return; }
+            
+            formData.append("album", album);
+
+            const wrapper = document.getElementById('progressWrapper');
+            const progressBar = document.getElementById('progressBar');
+            const statusTxt = document.getElementById('uploadStatusText');
+            const percentTxt = document.getElementById('uploadPercent');
+            
+            wrapper.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            statusTxt.innerText = `Đang tải lên ${count} file...`;
+
+            const xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener("progress", (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percent + "%";
+                    percentTxt.innerText = percent + "%";
+                }
+            });
+
+            xhr.addEventListener("load", () => {
+                if(xhr.status === 200) {
+                    statusTxt.innerText = "Tải lên hàng loạt thành công!";
+                    progressBar.className = "bg-blue-500 h-3 rounded-full transition-all"; 
+                    showToast(`Đã lưu an toàn ${count} file!`, "success");
+                    
+                    // Reset input
+                    fileInput.value = ""; folderInput.value = "";
+                    document.getElementById('selectedFilesText').innerText = "Chưa chọn file nào.";
+
+                    setTimeout(() => { wrapper.classList.add('hidden'); loadFiles(); }, 1500);
+                } else {
+                    showToast("Tải lên thất bại!", "error");
+                }
+            });
+
+            const pass = localStorage.getItem('gallery_pass');
+            xhr.open("POST", `${BACKEND_URL}/upload/?password=${pass}`);
+            xhr.send(formData);
+        }
+
+        checkLogin();
+    </script>
+</body>
+</html>
