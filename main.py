@@ -21,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@@app.get("/", methods=["GET", "HEAD"]) # <--- Thêm methods=["GET", "HEAD"] vào đây
+@app.get("/", methods=["GET", "HEAD"])
 def serve_web():
     return FileResponse("index.html")
 SECRET_PASSWORD = os.getenv("SECRET_PASSWORD", "MatKhauCuaTam")
