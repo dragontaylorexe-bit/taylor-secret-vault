@@ -1,17 +1,24 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, FileResponse
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-import io
-import os
-import json
-import requests
-from typing import List
+import sys
 import traceback
+
+try:
+    from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.responses import StreamingResponse, FileResponse
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from google.auth.transport.requests import Request
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaIoBaseUpload
+    import io
+    import os
+    import json
+    import requests
+    from typing import List
+except Exception as e:
+    print("CRITICAL IMPORT ERROR:")
+    traceback.print_exc()
+    sys.exit(1)
 
 app = FastAPI()
 
@@ -26,7 +33,8 @@ app.add_middleware(
 SECRET_PASSWORD = os.getenv("SECRET_PASSWORD", "MatKhauCuaTam")
 SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.appdata']
 
-@app.api_route("/", methods=["GET", "HEAD"])
+# Sử dụng @app.get chuẩn (Starlette tự động hỗ trợ HEAD cho route GET)
+@app.get("/")
 def serve_web():
     if os.path.exists("index.html"):
         return FileResponse("index.html")
@@ -51,7 +59,7 @@ def get_credentials():
                     flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
                     creds = flow.run_local_server(port=8080)
                 else:
-                    print("WARNING: No local credentials file found, relying on environment variables.")
+                    print("Using cloud environment fallback.")
                     
             if not env_token and not os.path.exists('token.json') and creds:
                 with open('token.json', 'w') as f:
@@ -112,6 +120,7 @@ def stream_media(file_id: str, password: str = Depends(verify_password)):
     file_info = drive_service.files().get(fileId=file_id, fields="mimeType").execute()
     mime_type = file_info.get("mimeType", "application/octet-stream")
     
+    # Đã sửa lại bằng f-string chuẩn Python
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
     headers = {"Authorization": f"Bearer {creds.token}"}
     
