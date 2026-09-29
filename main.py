@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -21,7 +21,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+@app.get("/")
+def serve_web():
+    return FileResponse("index.html")
 SECRET_PASSWORD = os.getenv("SECRET_PASSWORD", "MatKhauCuaTam")
 SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.appdata']
 
