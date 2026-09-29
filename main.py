@@ -10,7 +10,8 @@ import io
 import os
 import json
 import requests
-from typing import List  # Bổ sung thư viện List
+from typing import List
+import traceback
 
 app = FastAPI()
 
@@ -21,42 +22,51 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@app.get("/", methods=["GET", "HEAD"])
-def serve_web():
-    return FileResponse("index.html")
+
 SECRET_PASSWORD = os.getenv("SECRET_PASSWORD", "MatKhauCuaTam")
 SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.appdata']
 
-def get_credentials():
-    creds = None
-    env_token = os.getenv("DRIVE_TOKEN_JSON")
-    
-    if env_token:
-        # Khi chạy trên Render (dùng biến môi trường)
-        token_info = json.loads(env_token)
-        creds = Credentials.from_authorized_user_info(token_info, SCOPES)
-    elif os.path.exists('token.json'):
-        # Khi chạy trên máy tính cá nhân
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-        
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            # Chỉ chạy phần này khi ở máy tính cá nhân và chưa có token.json
-            if os.path.exists('client_secret.json'):
-                flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
-                creds = flow.run_local_server(port=8080)
-            else:
-                raise HTTPException(status_code=500, detail="Thiếu thông tin xác thực Google Drive Token!")
-                
-        if not env_token and not os.path.exists('token.json'):
-            with open('token.json', 'w') as f:
-                f.write(creds.to_json())
-                
-    return creds
+@app.get("/", methods=["GET", "HEAD"])
+def serve_web():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return {"error": "index.html not found"}
 
-# Đã nâng cấp để nhận nhiều file cùng lúc (List[UploadFile])
+def get_credentials():
+    try:
+        creds = None
+        env_token = os.getenv("DRIVE_TOKEN_JSON")
+        
+        if env_token:
+            token_info = json.loads(env_token)
+            creds = Credentials.from_authorized_user_info(token_info, SCOPES)
+        elif os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+            
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                if os.path.exists('client_secret.json'):
+                    flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
+                    creds = flow.run_local_server(port=8080)
+                else:
+                    print("WARNING: No local credentials file found, relying on environment variables.")
+                    
+            if not env_token and not os.path.exists('token.json') and creds:
+                with open('token.json', 'w') as f:
+                    f.write(creds.to_json())
+        return creds
+    except Exception as e:
+        print("CRITICAL ERROR in get_credentials:")
+        traceback.print_exc()
+        raise e
+
+def verify_password(password: str):
+    if password != SECRET_PASSWORD:
+        raise HTTPException(status_code=401, detail="Sai mật khẩu")
+    return True
+
 @app.post("/upload/")
 async def upload_multiple_files(
     files: List[UploadFile] = File(...), 
@@ -76,7 +86,6 @@ async def upload_multiple_files(
             'appProperties': {'album': album}
         }
         
-        # Tải lên từng file một vào cùng album
         drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         
     return {"message": f"Đã tải lên thành công {len(files)} file"}
