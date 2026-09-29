@@ -30,26 +30,31 @@ SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/a
 def get_credentials():
     creds = None
     env_token = os.getenv("DRIVE_TOKEN_JSON")
+    
     if env_token:
-        creds = Credentials.from_authorized_user_info(json.loads(env_token), SCOPES)
+        # Khi chạy trên Render (dùng biến môi trường)
+        token_info = json.loads(env_token)
+        creds = Credentials.from_authorized_user_info(token_info, SCOPES)
     elif os.path.exists('token.json'):
+        # Khi chạy trên máy tính cá nhân
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
         
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
-        if not env_token:
+            # Chỉ chạy phần này khi ở máy tính cá nhân và chưa có token.json
+            if os.path.exists('client_secret.json'):
+                flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
+                creds = flow.run_local_server(port=8080)
+            else:
+                raise HTTPException(status_code=500, detail="Thiếu thông tin xác thực Google Drive Token!")
+                
+        if not env_token and not os.path.exists('token.json'):
             with open('token.json', 'w') as f:
                 f.write(creds.to_json())
+                
     return creds
-
-def verify_password(password: str):
-    if password != SECRET_PASSWORD:
-        raise HTTPException(status_code=401, detail="Sai mật khẩu")
-    return True
 
 # Đã nâng cấp để nhận nhiều file cùng lúc (List[UploadFile])
 @app.post("/upload/")
