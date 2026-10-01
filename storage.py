@@ -3,13 +3,17 @@ import json
 import os
 import re
 import threading
+import time
 import uuid
+from collections import OrderedDict
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 import requests
 
-FIELDS = "id,name,mimeType,size,createdTime,modifiedTime,appProperties,spaces"
+FIELDS = ("id,name,mimeType,size,createdTime,modifiedTime,version,thumbnailLink,appProperties,spaces,"
+          "imageMediaMetadata(width,height,rotation,time,cameraMake,cameraModel,lens,exposureTime,aperture,focalLength,isoSpeed,whiteBalance,colorSpace),"
+          "videoMediaMetadata(width,height,durationMillis)")
 API = "https://www.googleapis.com/drive/v3/files"
 SCOPES = ["https://www.googleapis.com/auth/drive.appdata"]
 
@@ -25,6 +29,17 @@ class DriveStore:
         self.base = base
         self.credentials = None
         self.lock = threading.Lock()
+        self.metadata = OrderedDict()
+        self.metadata_lock = threading.Lock()
+
+    def remember(self, item):
+        if not item.get("id") or "appDataFolder" not in item.get("spaces", []) or item.get("trashed"):
+            return
+        with self.metadata_lock:
+            self.metadata[item["id"]] = (time.monotonic(), dict(item))
+            self.metadata.move_to_end(item["id"])
+            while len(self.metadata) > 2000:
+                self.metadata.popitem(last=False)
 
     def token(self):
         # Deferred import keeps / and /healthz available even before Drive is configured.
@@ -64,7 +79,7 @@ class DriveStore:
         headers = dict(kwargs.pop("headers", {}))
         headers["Authorization"] = f"Bearer {self.token()}"
         try:
-            response = requests.request(method, url, headers=headers, timeout=(15, 180), **kwargs)
+            response = requests.request(method, url, headers=headers, timeout=kwargs.pop("timeout", (15, 180)), **kwargs)
         except requests.RequestException:
             raise StorageError("Kết nối Drive bị gián đoạn. Hãy tải lại danh sách trước khi thử tải tệp lại.", code="drive_network") from None
         if response.status_code in (200, 201, 204, 206, 416):
@@ -102,6 +117,8 @@ class DriveStore:
             if page: params["pageToken"] = page
             data = self.json_request("GET", API, params=params)
             files.extend(data.get("files", []))
+            for item in data.get("files", []):
+                self.remember(item)
             page = data.get("nextPageToken")
             if not page: return files
             if page in seen_pages:
@@ -111,9 +128,14 @@ class DriveStore:
     def get(self, file_id):
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", file_id):
             raise StorageError("Mã tệp không hợp lệ.", 404)
+        with self.metadata_lock:
+            cached = self.metadata.get(file_id)
+            if cached and time.monotonic() - cached[0] < 60:
+                return dict(cached[1])
         item = self.json_request("GET", f"{API}/{file_id}", params={"fields": FIELDS + ",trashed"})
         if "appDataFolder" not in item.get("spaces", []) or item.get("trashed"):
             raise StorageError("Tệp không thuộc kho của ứng dụng.", 404, "outside_vault")
+        self.remember(item)
         return item
 
     def upload(self, file, name, mime, size, album):
@@ -126,8 +148,10 @@ class DriveStore:
         if parsed.scheme != "https" or parsed.hostname != "www.googleapis.com":
             raise StorageError("Drive chưa tạo được phiên tải lên.", 502)
         file.seek(0)
-        return self.json_request("PUT", location, data=file,
+        item = self.json_request("PUT", location, data=file,
                                  headers={"Content-Type": mime, "Content-Length": str(size)})
+        self.remember(item)
+        return item
 
     def update(self, file_id, changes):
         item = self.get(file_id)
@@ -137,12 +161,26 @@ class DriveStore:
         if "album" in changes: props["album"] = changes["album"]
         if "favorite" in changes: props["favorite"] = "true" if changes["favorite"] else "false"
         if "album" in changes or "favorite" in changes: body["appProperties"] = props
-        return self.json_request("PATCH", f"{API}/{file_id}", params={"fields": FIELDS}, json=body)
+        item = self.json_request("PATCH", f"{API}/{file_id}", params={"fields": FIELDS}, json=body)
+        self.remember(item)
+        return item
 
     def delete(self, file_id):
         self.get(file_id)
         with self.request("DELETE", f"{API}/{file_id}"):
             pass
+        with self.metadata_lock:
+            self.metadata.pop(file_id, None)
+
+    def thumbnail(self, item):
+        link = item.get("thumbnailLink", "")
+        parsed = urlsplit(link)
+        host = (parsed.hostname or "").lower()
+        allowed = host.endswith(".googleusercontent.com") or host in {"lh3.google.com", "drive.google.com"}
+        if parsed.scheme != "https" or not allowed or parsed.username or parsed.password or parsed.port not in (None, 443):
+            raise StorageError("Drive chưa có ảnh xem trước hợp lệ.", 404)
+        # No redirects: never forward a Google credential to an unvalidated host.
+        return self.request("GET", link, stream=True, allow_redirects=False, timeout=(10, 30))
 
     def stream(self, file_id, byte_range=None):
         headers = {"Range": byte_range} if byte_range else {}

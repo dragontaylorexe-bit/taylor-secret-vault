@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -18,6 +18,7 @@ from starlette.background import BackgroundTask
 from starlette.concurrency import run_in_threadpool
 
 from storage import DemoStore, DriveStore, StorageError
+from previews import PreviewCache
 
 BASE = Path(__file__).resolve().parent
 app = FastAPI(title="Taylor's Vault", docs_url=None, redoc_url=None, openapi_url=None)
@@ -27,6 +28,7 @@ MAX_UPLOAD_MB = max(1, min(500, int(os.getenv("MAX_UPLOAD_MB", "100"))))
 MAX_BYTES = MAX_UPLOAD_MB * 1024 * 1024
 SESSION_SECONDS = 12 * 60 * 60
 store = DemoStore(BASE / "static" / "demo") if DEMO_MODE else DriveStore(BASE)
+preview_cache = PreviewCache()
 sessions = {}
 login_attempts = {}
 state_lock = threading.Lock()
@@ -80,7 +82,10 @@ async def security_headers(request: Request, call_next):
         "img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; "
         "font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
     )
-    response.headers["Cache-Control"] = "no-store"
+    if request.url.path.startswith("/static/") and response.status_code in (200, 304):
+        response.headers["Cache-Control"] = "public, max-age=0, must-revalidate"
+    else:
+        response.headers.setdefault("Cache-Control", "no-store")
     return response
 
 
@@ -182,7 +187,23 @@ def logout(request: Request, response: Response, entry=Depends(session)):
 
 @app.get("/files/")
 def files(entry=Depends(session)):
-    return {"files": store.list_files()}
+    return {"files": [public_file(item) for item in store.list_files()]}
+
+
+def public_file(item):
+    # Keep short-lived credentialed Google URLs on the server.
+    return {key: value for key, value in item.items() if key != "thumbnailLink"}
+
+
+@app.get("/preview/{file_id}")
+def preview(file_id: str, request: Request, size: int = Query(default=800, ge=200, le=1200), entry=Depends(session)):
+    item = store.get(file_id)
+    data, mime, etag = preview_cache.get(store, item, size)
+    headers = {"Cache-Control": "private, no-cache", "Vary": "Cookie", "ETag": etag}
+    # Auth runs before 304 so a locked vault cannot reuse previews without validation.
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=headers)
+    return Response(data, media_type=mime, headers=headers)
 
 
 def clean_text(value, label, limit):
@@ -234,7 +255,7 @@ async def upload(files: list[UploadFile] = File(...), album: str = Form("Chưa p
         uploaded = []
         for file, name, mime, size in prepared:
             try:
-                uploaded.append(await run_in_threadpool(store.upload, file.file, name, mime, size, album))
+                uploaded.append(public_file(await run_in_threadpool(store.upload, file.file, name, mime, size, album)))
             except StorageError as exc:
                 # Tell the client precisely which files are already saved.
                 return JSONResponse({"detail": exc.message, "files": uploaded, "failed": name}, exc.status)
@@ -259,12 +280,15 @@ def edit_file(file_id: str, body: EditBody, entry=Depends(session)):
         changes["album"] = clean_text(changes["album"], "Tên album", 110)
     if not changes:
         raise HTTPException(422, "Chưa có nội dung thay đổi.")
-    return {"file": store.update(file_id, changes)}
+    item = store.update(file_id, changes)
+    preview_cache.clear(file_id)
+    return {"file": public_file(item)}
 
 
 @app.delete("/delete/{file_id}")
 def delete_file(file_id: str, entry=Depends(session)):
     store.delete(file_id)
+    preview_cache.clear(file_id)
     return {"message": "Đã xóa vĩnh viễn tệp."}
 
 
@@ -279,6 +303,12 @@ def stream(file_id: str, request: Request, download: bool = False, entry=Depends
     disposition = "attachment" if download or not safe else "inline"
     headers = {"Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(item['name'], safe='')}",
                "Accept-Ranges": "bytes"}
+    if mime.startswith("image/") and safe and not download and not byte_range:
+        version = item.get("version") or item.get("modifiedTime") or item.get("createdTime") or ""
+        etag = '"' + hashlib.sha256(f"{file_id}:{version}".encode()).hexdigest() + '"'
+        headers.update({"Cache-Control": "private, no-cache", "Vary": "Cookie", "ETag": etag})
+        if request.headers.get("if-none-match") == etag:
+            return Response(status_code=304, headers=headers)
     upstream = store.stream(file_id, byte_range)
     for key in ("Content-Length", "Content-Range"):
         if key in upstream.headers:
