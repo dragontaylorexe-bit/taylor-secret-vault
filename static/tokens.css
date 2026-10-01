@@ -1,2 +1,39 @@
-:root{color-scheme:dark;--bg:#111017;--sidebar:#14131b;--surface:#191820;--card:#201e28;--input:#18171f;--hover:#24222e;--text:#efedf3;--soft:#d7d1df;--muted:#928b9f;--placeholder:#635d71;--border:#2a2635;--accent:#bda0f2;--accent-dim:#a581e512;--active-border:#a581e531;--focus:#bda0f224}
-[data-theme="light"]{color-scheme:light;--bg:#faf8fc;--sidebar:#f4f0f7;--surface:#f1edf5;--card:#fff;--input:#fff;--hover:#eae3f1;--text:#282132;--soft:#4d435a;--muted:#7b6e88;--placeholder:#a597b2;--border:#e2d9eb;--accent:#946bcf;--accent-dim:#946bcf11;--active-border:#946bcf40;--focus:#946bcf1f}
+/* BẢNG MÀU DỄ CHỈNH — thay mã #... và giữ dấu ; cuối dòng.
+   --accent: màu nút và điểm nhấn. --bg: nền trang. --text: chữ chính.
+   Khối đầu là giao diện tối, khối sau là giao diện sáng. */
+:root {
+  color-scheme: dark;
+  --bg: #111017;
+  --sidebar: #14131b;
+  --surface: #191820;
+  --card: #201e28;
+  --input: #18171f;
+  --hover: #24222e;
+  --text: #efedf3;
+  --soft: #d7d1df;
+  --muted: #928b9f;
+  --placeholder: #635d71;
+  --border: #2a2635;
+  --accent: #bda0f2;
+  --accent-dim: #a581e512;
+  --active-border: #a581e531;
+  --focus: #bda0f224;
+}
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #faf8fc;
+  --sidebar: #f4f0f7;
+  --surface: #f1edf5;
+  --card: #fff;
+  --input: #fff;
+  --hover: #eae3f1;
+  --text: #282132;
+  --soft: #4d435a;
+  --muted: #7b6e88;
+  --placeholder: #a597b2;
+  --border: #e2d9eb;
+  --accent: #946bcf;
+  --accent-dim: #946bcf11;
+  --active-border: #946bcf40;
+  --focus: #946bcf1f;
+}

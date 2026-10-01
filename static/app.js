@@ -1,6 +1,12 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
+const settings = window.VAULT_SETTINGS || {};
+const numberSetting = (value, fallback, min, max) => Number.isFinite(Number(value)) ? Math.min(max, Math.max(min, Number(value))) : fallback;
+const ZOOM_MAX = numberSetting(settings.zoomMaxPercent, 800, 100, 1600) / 100;
+const ZOOM_STEP = numberSetting(settings.zoomStep, 1.25, 1.05, 2);
+const PREVIEW_SIZE = Math.round(numberSetting(settings.previewSize, 800, 200, 1200));
+const settingText = (key, fallback) => typeof settings[key] === "string" && settings[key].trim() ? settings[key].trim() : fallback;
 const state = {files: [], filtered: [], filter: "all", album: null, csrf: "", selected: new Set(),
   selecting: false, limit: 60, view: "grid", viewerIds: [], viewerIndex: 0, queue: [], uploading: false,
   stopping: false, xhr: null, maxMB: 100, editId: null, deleteIds: [], busy: false};
@@ -11,6 +17,7 @@ const albumOf = (f) => f.appProperties?.album || "Chưa phân loại";
 const favorite = (f) => f.appProperties?.favorite === "true";
 const normalized = (s) => String(s).toLocaleLowerCase("vi").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
 const mediaUrl = (id, download = false) => `/stream/${encodeURIComponent(id)}${download ? "?download=true" : ""}`;
+const previewUrl = (file) => `/preview/${encodeURIComponent(file.id)}?size=${PREVIEW_SIZE}&v=${encodeURIComponent(file.version || file.modifiedTime || file.createdTime || "")}`;
 const dateOf = (f) => {const d = Date.parse(f.createdTime || f.modifiedTime || ""); return Number.isNaN(d) ? 0 : d;};
 const dateText = (f) => dateOf(f) ? new Intl.DateTimeFormat("vi-VN", {day: "2-digit", month: "2-digit", year: "numeric"}).format(dateOf(f)) : "Kỷ niệm của bạn";
 
@@ -200,7 +207,7 @@ function makeCard(file) {
   open.setAttribute("aria-label", `Xem ${file.name}`);
   open.addEventListener("click", () => state.selecting ? toggleSelection(file.id) : openViewer(file.id));
   if (photo(file)) {
-    const img = el("img"); img.src = mediaUrl(file.id); img.alt = file.name; img.loading = "lazy"; img.decoding = "async";
+    const img = el("img"); img.src = previewUrl(file); img.alt = file.name; img.loading = "lazy"; img.decoding = "async";
     img.addEventListener("error", () => {img.hidden = true; if (!open.querySelector(".broken-preview")) open.append(el("span", "broken-preview", "Mở để xem / tải về"));});
     open.append(img);
   } else {const cover = el("span", "video-cover"); cover.append(icon(video(file) ? "video" : "folder")); open.append(cover);}
@@ -242,7 +249,8 @@ function toggleSelection(id) {
   state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id); render();
 }
 document.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => filterBy({filter: button.dataset.filter, album: null})));
-$("search").addEventListener("input", () => {state.limit = 60; render();});
+let searchTimer;
+$("search").addEventListener("input", () => {clearTimeout(searchTimer); searchTimer = setTimeout(() => {state.limit = 60; render();}, 180);});
 $("sort").addEventListener("change", () => {state.limit = 60; render();});
 $("load-more").addEventListener("click", () => {state.limit += 60; render();});
 $("refresh").addEventListener("click", loadFiles); $("error-retry").addEventListener("click", loadFiles);
@@ -273,27 +281,210 @@ document.querySelectorAll("[data-close]").forEach((button) => button.addEventLis
 document.querySelectorAll("dialog").forEach((dialog) => dialog.addEventListener("cancel", (event) => {
   if (state.busy || (dialog.id === "upload-dialog" && state.uploading)) event.preventDefault();
 }));
-$("viewer").addEventListener("close", () => {$("viewer-media").querySelector("video")?.pause(); $("viewer-media").replaceChildren();});
+const zoom = {image: null, fit: 1, scale: 1, x: 0, y: 0, fitted: true, pointers: new Map()};
+const zoomCanvas = $("viewer-media");
+const zoomButtons = ["zoom-in", "zoom-out", "zoom-original", "zoom-fit"];
+function infoRow(label, value) {
+  if (value === undefined || value === null || value === "") return;
+  $("viewer-info-values").append(el("dt", "", label), el("dd", "", String(value)));
+}
+function durationText(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "";
+  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+}
+function exposureText(value) {
+  const seconds = Number(value);
+  if (!(seconds > 0)) return "";
+  const reciprocal = 1 / seconds;
+  const denominator = Math.round(reciprocal);
+  if (denominator >= 2 && Math.abs(reciprocal - denominator) / reciprocal < 0.01) return `1/${denominator} s`;
+  return `${seconds.toLocaleString("vi-VN", {maximumSignificantDigits: 4})} s`;
+}
+function renderInfo(file, media) {
+  $("viewer-info-values").replaceChildren();
+  infoRow("Tên tệp", file.name); infoRow("Album", albumOf(file)); infoRow("Dung lượng", formatSize(file.size));
+  infoRow("Định dạng", (file.mimeType || "Không rõ").replace("image/", "").replace("video/", "").toUpperCase());
+  const meta = (video(file) ? file.videoMediaMetadata : file.imageMediaMetadata) || {};
+  let width = video(file) ? media?.videoWidth : media?.naturalWidth;
+  let height = video(file) ? media?.videoHeight : media?.naturalHeight;
+  if (!width || !height) {
+    width = Number(meta.width); height = Number(meta.height);
+    if (!video(file) && Number(meta.rotation) % 2) [width, height] = [height, width];
+  }
+  if (width > 0 && height > 0) {
+    const vector = file.mimeType === "image/svg+xml";
+    infoRow(vector ? "Kích thước hiển thị" : "Kích thước", `${width.toLocaleString("vi-VN")} × ${height.toLocaleString("vi-VN")} px`);
+    if (!video(file) && !vector) infoRow("Độ phân giải", `${(width * height / 1e6).toLocaleString("vi-VN", {maximumFractionDigits: 2})} MP`);
+  } else infoRow("Kích thước", "Chưa có thông tin");
+  if (video(file)) {
+    const seconds = Number.isFinite(media?.duration) ? media.duration : Number(meta.durationMillis) / 1000;
+    if (Number.isFinite(seconds)) infoRow("Thời lượng", durationText(seconds));
+  }
+  if (dateOf(file)) infoRow("Ngày tải lên", new Intl.DateTimeFormat("vi-VN", {dateStyle: "medium", timeStyle: "short"}).format(dateOf(file)));
+  let cameraInfo = false;
+  if (!video(file) && settings.showCameraMetadata !== false) {
+    const camera = [meta.cameraMake, meta.cameraModel].filter(Boolean).join(" ");
+    const pairs = [
+      ["Máy ảnh", camera], ["Ống kính", meta.lens], ["Thời gian chụp (EXIF)", meta.time],
+      ["Khẩu độ", Number(meta.aperture) > 0 ? `f/${Number(meta.aperture).toLocaleString("vi-VN", {maximumFractionDigits: 2})}` : ""],
+      ["Tốc độ màn trập", exposureText(meta.exposureTime)],
+      ["ISO", meta.isoSpeed], ["Tiêu cự", Number(meta.focalLength) > 0 ? `${Number(meta.focalLength).toLocaleString("vi-VN")} mm` : ""],
+      ["Cân bằng trắng", meta.whiteBalance], ["Không gian màu", meta.colorSpace]
+    ];
+    pairs.forEach(([label, value]) => {if (value !== undefined && value !== null && value !== "") {infoRow(label, value); cameraInfo = true;}});
+  }
+  $("viewer-info-note").hidden = video(file) || settings.showCameraMetadata === false || cameraInfo;
+  $("viewer-info-note").textContent = "Ảnh này chưa có thông số máy ảnh do Drive cung cấp. Ảnh chụp màn hình hoặc ảnh đã xóa EXIF thường không có các thông số này.";
+}
+function toggleInfo(open = $("viewer-info").hidden) {
+  $("viewer-info").hidden = !open;
+  $("viewer").classList.toggle("info-open", open);
+  $("viewer-info-toggle").setAttribute("aria-expanded", String(open));
+  $("viewer-info-toggle").setAttribute("aria-label", open ? "Ẩn thông tin tệp" : "Hiện thông tin tệp");
+  $("viewer-info-toggle").classList.toggle("active", open);
+}
+$("viewer-info-toggle").addEventListener("click", () => toggleInfo());
+$("viewer-info-close").addEventListener("click", () => {toggleInfo(false); $("viewer-info-toggle").focus();});
+function clearZoom() {
+  for (const id of zoom.pointers.keys()) {
+    if (zoomCanvas.hasPointerCapture(id)) zoomCanvas.releasePointerCapture(id);
+  }
+  zoom.pointers.clear(); zoom.image = null; zoom.x = 0; zoom.y = 0; zoom.fitted = true;
+  zoomCanvas.classList.remove("image-mode", "can-pan", "dragging");
+  $("viewer").classList.remove("has-image");
+  $("viewer-zoom").hidden = true; $("zoom-level").textContent = "—";
+  zoomButtons.forEach((id) => {$(id).disabled = true;});
+}
+function clampZoom() {
+  if (!zoom.image) return;
+  const maxX = Math.max(0, (zoom.image.naturalWidth * zoom.scale - zoomCanvas.clientWidth) / 2);
+  const maxY = Math.max(0, (zoom.image.naturalHeight * zoom.scale - zoomCanvas.clientHeight) / 2);
+  zoom.x = Math.max(-maxX, Math.min(maxX, zoom.x));
+  zoom.y = Math.max(-maxY, Math.min(maxY, zoom.y));
+}
+function paintZoom() {
+  if (!zoom.image || !zoom.image.naturalWidth) return;
+  clampZoom();
+  zoom.image.style.width = `${zoom.image.naturalWidth * zoom.fit}px`;
+  zoom.image.style.height = `${zoom.image.naturalHeight * zoom.fit}px`;
+  zoom.image.style.transform = `translate(-50%, -50%) translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale / zoom.fit})`;
+  $("zoom-level").textContent = `${Math.round(zoom.scale * 100)}%`;
+  $("zoom-level").title = "Tỷ lệ so với kích thước gốc của ảnh";
+  $("zoom-out").disabled = zoom.scale <= zoom.fit / 2 + 0.0001;
+  $("zoom-in").disabled = zoom.scale >= ZOOM_MAX - 0.0001;
+  $("zoom-fit").classList.toggle("active", zoom.fitted);
+  $("zoom-original").classList.toggle("active", !zoom.fitted && Math.abs(zoom.scale - 1) < 0.001);
+  zoomCanvas.classList.toggle("can-pan", zoom.image.naturalWidth * zoom.scale > zoomCanvas.clientWidth + 1 || zoom.image.naturalHeight * zoom.scale > zoomCanvas.clientHeight + 1);
+}
+function measureZoom() {
+  if (!zoom.image?.naturalWidth || !zoomCanvas.clientWidth || !zoomCanvas.clientHeight) return;
+  zoom.fit = Math.min(1, zoomCanvas.clientWidth / zoom.image.naturalWidth, zoomCanvas.clientHeight / zoom.image.naturalHeight);
+  zoom.scale = zoom.fitted ? zoom.fit : Math.max(zoom.fit / 2, Math.min(ZOOM_MAX, zoom.scale));
+  paintZoom();
+}
+function changeZoom(scale, anchor, previousAnchor = anchor) {
+  if (!zoom.image?.naturalWidth) return;
+  scale = Math.max(zoom.fit / 2, Math.min(ZOOM_MAX, scale));
+  const factor = scale / zoom.scale;
+  if (anchor) {zoom.x = anchor.x - (previousAnchor.x - zoom.x) * factor; zoom.y = anchor.y - (previousAnchor.y - zoom.y) * factor;}
+  else {zoom.x *= factor; zoom.y *= factor;}
+  zoom.scale = scale; zoom.fitted = false; paintZoom();
+}
+function fitZoom() {
+  if (!zoom.image) return;
+  zoom.fitted = true; zoom.x = 0; zoom.y = 0; measureZoom();
+}
+function pointInCanvas(event) {
+  const rect = zoomCanvas.getBoundingClientRect();
+  return {x: event.clientX - rect.left - rect.width / 2, y: event.clientY - rect.top - rect.height / 2};
+}
+function pinchPoints() {
+  const [a, b] = [...zoom.pointers.values()];
+  return {distance: Math.hypot(a.x - b.x, a.y - b.y), center: {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}};
+}
+new ResizeObserver(measureZoom).observe(zoomCanvas);
+$("zoom-in").addEventListener("click", () => changeZoom(zoom.scale * ZOOM_STEP));
+$("zoom-out").addEventListener("click", () => changeZoom(zoom.scale / ZOOM_STEP));
+$("zoom-fit").addEventListener("click", fitZoom);
+$("zoom-original").addEventListener("click", () => {zoom.x = 0; zoom.y = 0; changeZoom(1);});
+zoomCanvas.addEventListener("wheel", (event) => {
+  if (!zoom.image?.naturalWidth) return;
+  event.preventDefault();
+  const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? zoomCanvas.clientHeight : 1);
+  changeZoom(zoom.scale * Math.exp(-delta * 0.0015), pointInCanvas(event));
+}, {passive: false});
+zoomCanvas.addEventListener("dblclick", (event) => {
+  if (!zoom.image?.naturalWidth) return;
+  event.preventDefault();
+  if (zoom.scale > zoom.fit * 1.01) fitZoom();
+  else changeZoom(Math.max(1, zoom.fit * 2), pointInCanvas(event));
+});
+zoomCanvas.addEventListener("pointerdown", (event) => {
+  if (!zoom.image?.naturalWidth || event.button !== 0) return;
+  event.preventDefault();
+  zoom.pointers.set(event.pointerId, pointInCanvas(event));
+  zoomCanvas.setPointerCapture(event.pointerId);
+  zoomCanvas.classList.add("dragging");
+});
+zoomCanvas.addEventListener("pointermove", (event) => {
+  if (!zoom.pointers.has(event.pointerId)) return;
+  const previous = zoom.pointers.get(event.pointerId);
+  const before = zoom.pointers.size >= 2 ? pinchPoints() : null;
+  const point = pointInCanvas(event); zoom.pointers.set(event.pointerId, point);
+  if (before) {
+    const after = pinchPoints();
+    if (before.distance > 0) changeZoom(zoom.scale * after.distance / before.distance, after.center, before.center);
+  } else {zoom.x += point.x - previous.x; zoom.y += point.y - previous.y; paintZoom();}
+});
+function endPointer(event) {
+  zoom.pointers.delete(event.pointerId);
+  if (!zoom.pointers.size) zoomCanvas.classList.remove("dragging");
+}
+for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) zoomCanvas.addEventListener(name, endPointer);
+$("viewer").addEventListener("close", () => {$("viewer-media").querySelector("video")?.pause(); clearZoom(); $("viewer-media").replaceChildren();});
 function openViewer(id) {
   state.viewerIds = state.filtered.map((f) => f.id); state.viewerIndex = state.viewerIds.indexOf(id);
+  toggleInfo(settings.defaultInfoOpen === true);
   renderViewer(); showDialog("viewer");
 }
 function renderViewer() {
   const file = state.files.find((f) => f.id === state.viewerIds[state.viewerIndex]);
   if (!file) {$("viewer").close(); return;}
   const url = mediaUrl(file.id);
+  clearZoom();
   $("viewer-media").querySelector("video")?.pause(); $("viewer-media").replaceChildren();
   let media;
-  if (video(file)) {media = el("video"); media.controls = true; media.preload = "metadata"; media.playsInline = true;}
-  else {media = el("img"); media.alt = file.name;}
+  if (video(file)) {
+    media = el("video"); media.controls = true; media.preload = "metadata"; media.playsInline = true;
+    media.addEventListener("loadedmetadata", () => {if (zoomCanvas.contains(media)) renderInfo(file, media);});
+    $("viewer-help").textContent = "Dùng thanh điều khiển để phát và tua · Esc để đóng";
+  } else {
+    media = el("img"); media.alt = file.name; media.draggable = false;
+    const backdrop = el("img", "viewer-loading-preview"); backdrop.alt = ""; backdrop.src = previewUrl(file);
+    backdrop.addEventListener("error", () => backdrop.remove());
+    zoomCanvas.append(backdrop);
+    zoom.image = media; zoomCanvas.classList.add("image-mode"); $("viewer").classList.add("has-image");
+    $("viewer-zoom").hidden = false;
+    $("viewer-help").textContent = "Đang tải bản gốc từ Drive… Thanh zoom sẽ sẵn sàng khi ảnh tải xong.";
+    media.addEventListener("load", () => {
+      if (zoom.image !== media) return;
+      backdrop.remove();
+      $("viewer-help").textContent = "Bản gốc · Lăn chuột / chụm hai ngón để zoom · Kéo để di chuyển · Nhấp đúp để zoom / vừa khung";
+      zoomButtons.forEach((id) => {$(id).disabled = false;}); measureZoom(); renderInfo(file, media);
+    });
+  }
   media.src = url;
   media.addEventListener("error", () => {
+    if (!zoomCanvas.contains(media)) return;
+    clearZoom();
+    $("viewer-help").textContent = "Dùng phím ← → để chuyển · Esc để đóng";
     media.remove();
     const fallback = el("div", "viewer-fallback"); fallback.append(icon("photo"), el("p", "", "Trình duyệt chưa xem được định dạng này, hoặc kết nối đang gián đoạn. Bạn có thể tải bản gốc về máy."));
     const link = el("a", "button primary", "Tải bản gốc"); link.href = mediaUrl(file.id, true); link.download = file.name; fallback.append(link);
     $("viewer-media").replaceChildren(fallback);
   });
   $("viewer-media").append(media);
+  renderInfo(file, media);
   $("viewer-name").textContent = file.name;
   $("viewer-meta").textContent = `${albumOf(file)} · ${dateText(file)} · ${formatSize(file.size)}`;
   $("viewer-position").textContent = `${state.viewerIndex + 1} / ${state.viewerIds.length}`;
@@ -306,7 +497,14 @@ $("viewer-prev").addEventListener("click", () => stepViewer(-1)); $("viewer-next
 $("viewer-favorite").addEventListener("click", () => setFavorite(state.viewerIds[state.viewerIndex]));
 document.addEventListener("keydown", (event) => {
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName) || event.ctrlKey || event.metaKey || event.altKey) return;
-  if ($( "viewer").open && ["ArrowLeft", "ArrowRight"].includes(event.key)) {event.preventDefault(); stepViewer(event.key === "ArrowLeft" ? -1 : 1);}
+  if ($("viewer").open && zoom.image && ["+", "=", "-", "0", "1"].includes(event.key)) {
+    event.preventDefault();
+    if (event.key === "0") fitZoom();
+    else if (event.key === "1") {zoom.x = 0; zoom.y = 0; changeZoom(1);}
+    else changeZoom(zoom.scale * (event.key === "-" ? 1 / ZOOM_STEP : ZOOM_STEP));
+  }
+  else if ($("viewer").open && event.key.toLowerCase() === "i") {event.preventDefault(); toggleInfo();}
+  else if ($( "viewer").open && event.target.tagName !== "VIDEO" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {event.preventDefault(); stepViewer(event.key === "ArrowLeft" ? -1 : 1);}
   else if (event.key === "/" && !$("app-screen").hidden && !document.querySelector("dialog[open]")) {event.preventDefault(); $("search").focus();}
 });
 function replaceFile(file) {const i = state.files.findIndex((f) => f.id === file.id); if (i >= 0) state.files[i] = file; else state.files.push(file);}
@@ -469,6 +667,19 @@ function updateConnection() {
 }
 window.addEventListener("online", updateConnection); window.addEventListener("offline", updateConnection);
 (async function init() {
+  const brand = settingText("brandName", "Taylor's Vault");
+  document.title = `${brand} · Kho kỷ niệm riêng tư`;
+  document.querySelectorAll(".brand > span:last-child").forEach((node) => {
+    const tagline = node.querySelector("small"); node.replaceChildren(document.createTextNode(brand)); if (tagline) node.append(tagline);
+  });
+  $("viewer-info-toggle").title = "Thông tin (I)";
+  document.querySelector(".avatar").textContent = Array.from(settingText("ownerName", "Taylor"))[0].toLocaleUpperCase("vi");
+  document.querySelector(".avatar").setAttribute("aria-label", `Kho riêng của ${settingText("ownerName", "Taylor")}`);
+  document.querySelector(".welcome h1").replaceChildren(document.createTextNode(settingText("heroTitle", "Một nơi cho những điều")), el("br"), el("em", "", settingText("heroAccent", "đáng nhớ.")));
+  document.querySelector(".welcome-copy p").textContent = settingText("heroDescription", "Từ chuyến đi xa đến một ngày bình thường.\nCất giữ tất cả, theo cách của bạn.");
+  $("hero-upload").replaceChildren(icon("plus"), document.createTextNode(settingText("uploadButtonText", "Thêm kỷ niệm mới")));
+  document.querySelector(".main-footer > span:first-child").textContent = brand.toLocaleUpperCase("vi");
+  if (["dark", "light"].includes(settings.defaultTheme)) document.documentElement.dataset.theme = settings.defaultTheme;
   try {
     // Remove the plaintext password stored by the previous version on this origin.
     localStorage.removeItem("gallery_pass");
