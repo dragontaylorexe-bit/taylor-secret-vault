@@ -1,284 +1,85 @@
-<!DOCTYPE html>
-<html lang="vi">
+<!doctype html>
+<html lang="vi" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taylor's Secret Vault 5.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Nhúng thư viện Fancybox siêu mượt -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
-
-    <style>
-        body { background-color: #0f172a; color: #f1f5f9; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1); }
-        .masonry { column-count: 1; column-gap: 1rem; }
-        @media (min-width: 640px) { .masonry { column-count: 2; } }
-        @media (min-width: 1024px) { .masonry { column-count: 3; } }
-        .masonry-item { break-inside: avoid; margin-bottom: 1rem; }
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .animate-pop { animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111017">
+  <meta name="description" content="Kho ảnh và video riêng tư của Taylor. Lưu giữ những điều đáng nhớ.">
+  <title>Taylor's Vault · Kho kỷ niệm riêng tư</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
 </head>
-<body class="min-h-screen p-4 md:p-8 font-sans">
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-vault" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m12 7 4.5 2.5v5L12 17l-4.5-2.5v-5L12 7Z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 6-6 4 4 3-3 5 5"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="3"/><path d="m16 10 5-3v10l-5-3M8 9l4 3-4 3V9Z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.7 4.9a5.5 5.5 0 0 0-7.8 0l-.9.9-.9-.9a5.5 5.5 0 0 0-7.8 7.8L12 21l8.7-8.3a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 8V6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m16 3 5 5-12 12-6 1 1-6L16 3Zm-3 3 5 5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-columns" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1.5"/><rect x="14" y="3" width="7" height="11" rx="1.5"/><rect x="14" y="18" width="7" height="3" rx="1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  </svg>
 
-    <!-- Toast Thông Báo -->
-    <div id="toastContainer" class="fixed top-6 right-6 z-[100] flex flex-col gap-3"></div>
-
-    <!-- Khung đăng nhập -->
-    <div id="login-section" class="max-w-md mx-auto mt-20 glass p-10 rounded-3xl shadow-2xl">
-        <div class="text-center mb-8">
-            <span class="text-5xl mb-4 block">🔐</span>
-            <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Secret Vault 5.0</h2>
-        </div>
-        <input type="password" id="passInput" class="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-4 text-white mb-6 focus:border-blue-500 outline-none" placeholder="Nhập mật khẩu bí mật...">
-        <button onclick="savePassword()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 font-bold py-4 px-4 rounded-xl shadow-lg">Mở khóa Vault</button>
+  <section id="login-screen" class="login-screen">
+    <div class="login-art">
+      <a class="brand" href="/"><span class="brand-mark"><svg><use href="#i-vault"/></svg></span><span>Taylor's <b>Vault</b><small>YOUR PRIVATE LITTLE WORLD</small></span></a>
+      <div class="login-story"><span class="eyebrow">MỖI KHOẢNH KHẮC, MỘT CÂU CHUYỆN</span><h1>Những điều nhỏ bé.<br>Những ký ức <em>lớn lao.</em></h1><p>Một góc riêng để cất giữ ảnh, thước phim<br>và những điều bạn muốn nhớ mãi.</p><div class="art-stack"><img src="/static/demo/01-mien-nui.svg" alt="Minh họa phong cảnh núi"><img src="/static/demo/02-chieu-ben-ho.svg" alt="Minh họa mặt hồ lúc chiều"><span class="art-note">a little collection of life <span>✧</span></span></div></div>
+      <div class="login-footer"><span>MADE FOR YOUR MEMORIES</span><span>RIÊNG TƯ · GỌN GÀNG · CỦA BẠN</span></div>
     </div>
+    <div class="login-form-area"><form id="login-form" class="login-form"><span class="login-lock"><svg><use href="#i-lock"/></svg></span><span class="eyebrow">CHÀO MỪNG TRỞ LẠI</span><h2>Mở cánh cửa<br>kỷ niệm của bạn.</h2><p>Nhập mật khẩu để bước vào thư viện riêng.</p><label for="password">Mật khẩu thư viện</label><div class="password-wrap"><input type="password" id="password" autocomplete="current-password" required maxlength="1024" placeholder="Nhập mật khẩu của bạn"><button type="button" id="toggle-password" aria-label="Hiện mật khẩu">Hiện</button></div><p id="login-error" class="field-error" role="alert" hidden></p><button class="button primary login-submit" type="submit"><span>Mở khóa thư viện</span><svg><use href="#i-arrow"/></svg></button><span class="login-hint"><svg><use href="#i-lock"/></svg> Mật khẩu không được lưu trong trình duyệt.</span></form></div>
+  </section>
 
-    <!-- Giao diện chính -->
-    <div id="app-section" style="display:none;" class="max-w-6xl mx-auto">
-        
-        <!-- Bảng Tải lên Cải Tiến -->
-        <div class="glass p-8 rounded-3xl mb-8 shadow-2xl">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div class="w-full">
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">Tên Album 📁</label>
-                    <input type="text" id="albumInput" placeholder="Nhập tên album..." class="w-full bg-slate-800/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500">
-                </div>
-                
-                <div class="w-full relative group">
-                    <label class="block text-sm font-semibold text-slate-300 mb-2 text-center text-blue-400">📄 Chọn Nhiều File</label>
-                    <input type="file" id="fileInput" multiple accept="image/*,video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="w-full bg-blue-600/20 border border-blue-500 rounded-xl p-3 text-center text-blue-400 group-hover:bg-blue-600/40 transition">Bấm chọn File</div>
-                </div>
-
-                <div class="w-full relative group">
-                    <label class="block text-sm font-semibold text-slate-300 mb-2 text-center text-emerald-400">📂 Chọn Cả Thư Mục</label>
-                    <!-- Thuộc tính webkitdirectory cho phép chọn nguyên 1 folder -->
-                    <input type="file" id="folderInput" webkitdirectory directory multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="w-full bg-emerald-600/20 border border-emerald-500 rounded-xl p-3 text-center text-emerald-400 group-hover:bg-emerald-600/40 transition">Bấm chọn Folder</div>
-                </div>
-
-                <button onclick="uploadFiles()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 px-6 py-3 rounded-xl font-bold h-[50px] shadow-lg">🚀 TẢI LÊN</button>
-            </div>
-            
-            <div class="text-xs text-slate-400 mt-3 text-center" id="selectedFilesText">Chưa chọn file nào.</div>
-
-            <!-- Thanh tiến độ -->
-            <div class="mt-6 hidden" id="progressWrapper">
-                <div class="flex justify-between text-sm font-bold text-emerald-400 mb-2">
-                    <span id="uploadStatusText">Đang tải lên...</span>
-                    <span id="uploadPercent">0%</span>
-                </div>
-                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
-                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-3 rounded-full transition-all duration-300" id="progressBar" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bộ Lọc -->
-        <div class="flex flex-col md:flex-row gap-6 justify-between items-center mb-8 glass p-4 rounded-2xl">
-            <div class="flex gap-3 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" id="albumTabs"></div>
-            <div class="relative w-full md:w-80 group">
-                <span class="absolute left-4 top-3 text-slate-400">🔍</span>
-                <input type="text" id="searchInput" onkeyup="renderGallery()" placeholder="Tìm kiếm..." class="w-full bg-slate-800 border border-slate-600 rounded-full pl-12 pr-4 py-3 text-white outline-none">
-            </div>
-        </div>
-
-        <!-- Gallery -->
-        <div class="masonry" id="gallery"></div>
+  <div id="app-screen" class="app-shell" hidden>
+    <button id="sidebar-backdrop" class="sidebar-backdrop" aria-label="Đóng menu" hidden></button>
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="/"><span class="brand-mark"><svg><use href="#i-vault"/></svg></span><span>Taylor's <b>Vault</b><small>YOUR PRIVATE LITTLE WORLD</small></span></a>
+      <div class="sidebar-label">THƯ VIỆN CỦA BẠN</div>
+      <nav class="main-nav" aria-label="Thư viện"><button data-filter="all" class="nav-item active"><svg><use href="#i-grid"/></svg><span>Tất cả kỷ niệm</span><span id="nav-count" class="nav-count">0</span></button><button data-filter="photos" class="nav-item"><svg><use href="#i-photo"/></svg><span>Hình ảnh</span></button><button data-filter="videos" class="nav-item"><svg><use href="#i-video"/></svg><span>Thước phim</span></button><button data-filter="favorites" class="nav-item"><svg><use href="#i-heart"/></svg><span>Yêu thích</span><span class="nav-dot"></span></button></nav>
+      <div class="sidebar-label album-label"><span>BỘ SƯU TẬP</span><button id="new-album" class="icon-button" title="Tải ảnh vào album mới" aria-label="Tạo album bằng cách tải ảnh"><svg><use href="#i-plus"/></svg></button></div><nav id="album-nav" class="album-nav" aria-label="Album"></nav>
+      <div class="sidebar-bottom"><div class="private-note"><svg><use href="#i-lock"/></svg><strong>Một không gian riêng.</strong><p>Kỷ niệm của bạn được lưu trong kho Google Drive của ứng dụng.</p><span id="storage-label">GOOGLE DRIVE</span></div><button id="logout" class="nav-item"><svg><use href="#i-lock"/></svg><span>Khóa thư viện</span></button><div class="sidebar-credit">Lưu những điều đáng nhớ. <span>✧</span></div></div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar"><div class="topbar-left"><button id="menu-toggle" class="icon-button mobile-only" aria-label="Mở menu"><svg><use href="#i-menu"/></svg></button><span class="breadcrumb">Không gian riêng <span>/</span> <b>Thư viện</b></span></div><div class="topbar-right"><span id="connection" class="connection"><i></i><span>Đã mở khóa</span></span><button id="theme-toggle" class="icon-button" title="Đổi giao diện sáng / tối" aria-label="Đổi giao diện sáng hoặc tối"><svg><use href="#i-sun"/></svg></button><span class="avatar" title="Kho riêng của Taylor">T</span></div></header>
+      <main class="main-content">
+        <div id="demo-banner" class="banner demo-banner" hidden>Chế độ xem thử · Đây là hình minh họa. Các thay đổi chỉ lưu tạm và sẽ mất khi máy chủ khởi động lại.</div>
+        <section class="welcome"><div class="welcome-copy"><span class="eyebrow"><span class="tiny-star">✧</span> KHOẢNH KHẮC TRÔI QUA. KỶ NIỆM Ở LẠI.</span><h1>Một nơi cho những điều<br><em>đáng nhớ.</em></h1><p>Từ chuyến đi xa đến một ngày bình thường.<br>Cất giữ tất cả, theo cách của bạn.</p><button id="hero-upload" class="button primary"><svg><use href="#i-plus"/></svg> Thêm kỷ niệm mới</button></div><div class="welcome-art" aria-hidden="true"><img src="/static/demo/02-chieu-ben-ho.svg" alt=""><span class="art-top">THE LITTLE MOMENTS</span><span class="art-bottom">stay with you.<span>✧</span></span></div></section>
+        <section class="stats" aria-label="Thống kê thư viện"><div><span class="stat-icon purple"><svg><use href="#i-photo"/></svg></span><div><b id="stat-photos">0</b><span>Hình ảnh</span></div></div><div><span class="stat-icon peach"><svg><use href="#i-video"/></svg></span><div><b id="stat-videos">0</b><span>Thước phim</span></div></div><div><span class="stat-icon green"><svg><use href="#i-folder"/></svg></span><div><b id="stat-albums">0</b><span>Album</span></div></div><div><span class="stat-icon pink"><svg><use href="#i-heart"/></svg></span><div><b id="stat-favorites">0</b><span>Yêu thích</span></div></div></section>
+        <section class="library"><div class="library-heading"><div><span class="eyebrow">BỘ SƯU TẬP CỦA BẠN</span><h2 id="library-title">Tất cả kỷ niệm <span id="result-count">0</span></h2></div><div class="heading-actions"><button id="select-toggle" class="button subtle">Chọn nhiều</button><button id="refresh" class="icon-button" title="Tải lại thư viện" aria-label="Tải lại thư viện"><svg><use href="#i-refresh"/></svg></button></div></div>
+          <div class="toolbar"><label class="search-box"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Tìm tên ảnh, video hoặc album…" aria-label="Tìm trong thư viện"><kbd>/</kbd></label><div class="toolbar-right"><select id="sort" aria-label="Sắp xếp"><option value="newest">Mới nhất trước</option><option value="oldest">Cũ nhất trước</option><option value="name">Tên A → Z</option><option value="largest">Dung lượng lớn nhất</option></select><div class="view-switch" role="group" aria-label="Kiểu hiển thị"><button id="view-grid" class="icon-button active" aria-label="Lưới đều" aria-pressed="true"><svg><use href="#i-grid"/></svg></button><button id="view-masonry" class="icon-button" aria-label="Lưới so le" aria-pressed="false"><svg><use href="#i-columns"/></svg></button></div></div></div>
+          <div id="filter-chips" class="filter-chips" aria-label="Lọc album"></div>
+          <div id="error-banner" class="banner error-banner" role="alert" hidden><span id="error-text"></span><button id="error-retry" class="button subtle">Thử lại</button></div>
+          <div id="bulk-bar" class="bulk-bar" hidden><span id="selection-count">Đã chọn 0 tệp</span><button id="select-all" class="button subtle">Chọn tất cả đang hiển thị</button><button id="bulk-album" class="button subtle"><svg><use href="#i-folder"/></svg> Chuyển album</button><button id="bulk-favorite" class="icon-button" title="Thêm vào yêu thích" aria-label="Thêm các tệp đã chọn vào yêu thích"><svg><use href="#i-heart"/></svg></button><button id="bulk-delete" class="icon-button danger" title="Xóa các tệp đã chọn" aria-label="Xóa các tệp đã chọn"><svg><use href="#i-trash"/></svg></button></div>
+          <div id="loading" class="loading" hidden><span class="spinner"></span> Đang mở những kỷ niệm của bạn…</div>
+          <div id="gallery" class="gallery"></div>
+          <div id="empty-state" class="empty-state" hidden><span class="empty-icon"><svg><use href="#i-photo"/></svg></span><h3 id="empty-title">Một câu chuyện mới đang chờ.</h3><p id="empty-description">Thêm hình ảnh hoặc video đầu tiên vào thư viện.</p><button id="empty-action" class="button primary">Thêm kỷ niệm</button></div>
+          <div id="more-wrap" class="more-wrap" hidden><button id="load-more" class="button subtle">Xem thêm kỷ niệm</button></div>
+        </section>
+        <footer class="main-footer"><span>TAYLOR'S VAULT</span><span>A home for your memories. <b>✧</b></span><span id="total-size">0 B trong thư viện</span></footer>
+      </main>
     </div>
+  </div>
 
-    <script>
-        const BACKEND_URL = "http://localhost:8000"; 
-        let allFiles = []; 
-        let currentFilter = "Tất cả";
+  <dialog id="upload-dialog" class="modal upload-modal"><div class="modal-heading"><div><span class="eyebrow">THÊM VÀO CÂU CHUYỆN CỦA BẠN</span><h2>Những kỷ niệm mới.</h2></div><button class="icon-button" data-close="upload-dialog" aria-label="Đóng cửa sổ tải lên"><svg><use href="#i-close"/></svg></button></div><label for="upload-album">Lưu vào album</label><input id="upload-album" list="album-options" maxlength="110" placeholder="Ví dụ: Đà Lạt, tháng 9"><datalist id="album-options"></datalist><div id="drop-zone" class="drop-zone"><span class="upload-symbol"><svg><use href="#i-upload"/></svg></span><h3>Thả một chút kỷ niệm vào đây.</h3><p>Ảnh hoặc video · <span id="upload-limit">Tối đa 100 MB / tệp</span></p><div><button id="choose-files" class="button primary">Chọn tệp</button><button id="choose-folder" class="button subtle"><svg><use href="#i-folder"/></svg> Chọn thư mục</button></div></div><input id="file-input" type="file" multiple accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/heic,image/heif,image/bmp,image/tiff,video/mp4,video/quicktime,video/webm,video/ogg" hidden><input id="folder-input" type="file" webkitdirectory multiple hidden><div id="upload-queue" class="upload-queue"></div><div id="upload-progress" class="upload-progress" hidden><div><span id="upload-status">Đang tải…</span><span id="upload-percent">0%</span></div><progress id="progress" max="100" value="0"></progress><small>Thanh tiến độ là bước gửi tệp đến máy chủ. Tệp chỉ được lưu xong khi Google Drive xác nhận.</small></div><p id="queue-summary" class="muted">Chưa chọn tệp nào.</p><div class="modal-footer"><button id="clear-queue" class="button subtle">Bỏ chọn tất cả</button><button id="cancel-upload" class="button subtle" hidden>Dừng tải</button><button id="start-upload" class="button primary" disabled><svg><use href="#i-upload"/></svg> Lưu vào thư viện</button></div></dialog>
 
-        // Cập nhật text hiển thị khi người dùng chọn file
-        document.getElementById('fileInput').addEventListener('change', updateSelectedFiles);
-        document.getElementById('folderInput').addEventListener('change', updateSelectedFiles);
+  <dialog id="viewer" class="viewer"><div class="viewer-top"><span id="viewer-position"></span><div><button id="viewer-favorite" class="icon-button" aria-label="Đổi trạng thái yêu thích"><svg><use href="#i-heart"/></svg></button><a id="viewer-download" class="icon-button" aria-label="Tải tệp về máy" download><svg><use href="#i-download"/></svg></a><button class="icon-button" data-close="viewer" aria-label="Đóng ảnh"><svg><use href="#i-close"/></svg></button></div></div><div class="viewer-stage"><button id="viewer-prev" class="viewer-arrow" aria-label="Ảnh trước">‹</button><div id="viewer-media"></div><button id="viewer-next" class="viewer-arrow" aria-label="Ảnh tiếp">›</button></div><div class="viewer-caption"><h3 id="viewer-name"></h3><span id="viewer-meta"></span><small>Dùng phím ← → để chuyển · Esc để đóng</small></div></dialog>
 
-        function updateSelectedFiles() {
-            const f1 = document.getElementById('fileInput').files.length;
-            const f2 = document.getElementById('folderInput').files.length;
-            const total = f1 + f2;
-            document.getElementById('selectedFilesText').innerText = total > 0 ? `Đã chọn tổng cộng ${total} file để chuẩn bị tải lên.` : "Chưa chọn file nào.";
-        }
-
-        function showToast(message, type = "success") {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            const icon = type === "success" ? "✅" : "❌";
-            const colorClass = type === "success" ? "bg-emerald-600" : "bg-red-600";
-            toast.className = `${colorClass} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0 font-bold border border-white/20`;
-            toast.innerHTML = `<span class="text-xl">${icon}</span> ${message}`;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 10);
-            setTimeout(() => { toast.classList.add('translate-x-full', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        function checkLogin() {
-            if(localStorage.getItem('gallery_pass')) {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('app-section').style.display = 'block';
-                loadFiles();
-            }
-        }
-        function savePassword() { localStorage.setItem('gallery_pass', document.getElementById('passInput').value); checkLogin(); }
-
-        async function loadFiles() {
-            const pass = localStorage.getItem('gallery_pass');
-            try {
-                const res = await fetch(`${BACKEND_URL}/files/?password=${pass}`);
-                if(res.status === 401) { showToast("Sai mật khẩu!", "error"); localStorage.removeItem('gallery_pass'); setTimeout(() => location.reload(), 1500); return; }
-                const data = await res.json();
-                allFiles = data.files;
-                renderGallery();
-            } catch(e) { showToast("Lỗi máy chủ!", "error"); }
-        }
-
-        function renderGallery(filterAlbum = currentFilter) {
-            currentFilter = filterAlbum;
-            const pass = localStorage.getItem('gallery_pass');
-            const gallery = document.getElementById('gallery');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            // Xây dựng lại Tab Albums
-            const tabsDiv = document.getElementById('albumTabs');
-            tabsDiv.innerHTML = '';
-            const albums = new Set();
-            allFiles.forEach(f => { if(f.appProperties && f.appProperties.album) albums.add(f.appProperties.album); });
-            const createBtn = (name) => {
-                const isActive = (name === currentFilter);
-                const colorClass = isActive ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-400" : "bg-slate-700/50 text-slate-300";
-                return `<button onclick="renderGallery('${name.replace(/'/g, "\\'")}')" class="whitespace-nowrap px-6 py-2 rounded-full text-sm font-bold ${colorClass}">${name}</button>`;
-            };
-            tabsDiv.innerHTML += createBtn('Tất cả');
-            albums.forEach(album => tabsDiv.innerHTML += createBtn(album));
-
-            // Render Ảnh & Video
-            gallery.innerHTML = '';
-            let renderCount = 0;
-            
-            allFiles.forEach(file => {
-                const fileAlbum = (file.appProperties && file.appProperties.album) ? file.appProperties.album : 'Khác';
-                if(filterAlbum !== "Tất cả" && fileAlbum !== filterAlbum) return;
-                if(searchTerm && !fileAlbum.toLowerCase().includes(searchTerm) && !file.name.toLowerCase().includes(searchTerm)) return;
-
-                renderCount++;
-                const streamUrl = `${BACKEND_URL}/stream/${file.id}?password=${pass}`;
-                const isVideo = file.mimeType.includes("video");
-                const delayStr = `${(renderCount * 0.05).toFixed(2)}s`;
-                
-                let mediaHTML = isVideo 
-                    ? `<div class="aspect-video relative bg-black rounded-2xl overflow-hidden"><video class="w-full h-full object-cover opacity-80"><source src="${streamUrl}" type="${file.mimeType}"></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><span class="text-white text-5xl opacity-80">▶</span></div></div>`
-                    : `<img src="${streamUrl}" loading="lazy" class="w-full rounded-2xl object-cover">`;
-
-                // Tích hợp Fancybox qua thẻ a (data-fancybox)
-                gallery.innerHTML += `
-                    <div class="masonry-item relative group animate-pop" style="animation-delay: ${delayStr}">
-                        
-                        <a href="${streamUrl}" data-fancybox="gallery" data-caption="<b>${fileAlbum}</b>: ${file.name}" ${isVideo ? 'data-type="video"' : ''} class="block cursor-pointer overflow-hidden rounded-2xl border border-slate-700/50 shadow-lg bg-slate-800 transform transition group-hover:-translate-y-1">
-                            ${mediaHTML}
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        </a>
-                        
-                        <!-- Nút Xóa -->
-                        <button onclick="deleteFile('${file.id}')" class="absolute top-3 right-3 bg-red-500 hover:bg-red-400 text-white w-10 h-10 rounded-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition shadow-xl z-10" title="Xóa">🗑️</button>
-                        
-                        <div class="absolute bottom-3 left-3 bg-blue-600/90 px-3 py-1.5 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition font-bold text-white shadow-lg pointer-events-none">🏷️ ${fileAlbum}</div>
-                    </div>`;
-            });
-
-            if(renderCount === 0) {
-                gallery.innerHTML = `<div class="col-span-full flex flex-col items-center py-20"><div class="text-8xl mb-6 opacity-50">📭</div><h3 class="text-2xl font-bold mb-2">Thư mục trống</h3></div>`;
-            }
-
-            // Kích hoạt thư viện Fancybox 5
-            Fancybox.bind('[data-fancybox="gallery"]', {
-                Toolbar: { display: { left: ["infobar"], middle: ["zoomIn", "zoomOut", "toggle1to1", "rotateCCW", "rotateCW"], right: ["slideshow", "close"] } },
-                Images: { initialSize: "fit" }
-            });
-        }
-
-        async function deleteFile(fileId) {
-            if(!confirm("⚠️ Bạn có chắc chắn muốn xóa vĩnh viễn file này không?")) return;
-            const pass = localStorage.getItem('gallery_pass');
-            try {
-                const res = await fetch(`${BACKEND_URL}/delete/${fileId}?password=${pass}`, { method: 'DELETE' });
-                if(res.ok) {
-                    allFiles = allFiles.filter(f => f.id !== fileId);
-                    renderGallery(); 
-                    showToast("Đã xóa file!", "success");
-                }
-            } catch(e) { showToast("Lỗi kết nối", "error"); }
-        }
-
-        // HÀM TẢI LÊN MỚI (Hỗ trợ nhiều file & Folder)
-        function uploadFiles() {
-            const fileInput = document.getElementById('fileInput');
-            const folderInput = document.getElementById('folderInput');
-            const album = document.getElementById('albumInput').value || "Khác";
-            
-            const formData = new FormData();
-            let count = 0;
-
-            // Nhặt file từ nút Chọn File
-            for(let i=0; i < fileInput.files.length; i++) { formData.append("files", fileInput.files[i]); count++; }
-            // Nhặt file từ nút Chọn Folder
-            for(let i=0; i < folderInput.files.length; i++) { formData.append("files", folderInput.files[i]); count++; }
-
-            if(count === 0) { showToast("Bạn chưa chọn file hoặc thư mục nào!", "error"); return; }
-            
-            formData.append("album", album);
-
-            const wrapper = document.getElementById('progressWrapper');
-            const progressBar = document.getElementById('progressBar');
-            const statusTxt = document.getElementById('uploadStatusText');
-            const percentTxt = document.getElementById('uploadPercent');
-            
-            wrapper.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            statusTxt.innerText = `Đang tải lên ${count} file...`;
-
-            const xhr = new XMLHttpRequest();
-            xhr.upload.addEventListener("progress", (e) => {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + "%";
-                    percentTxt.innerText = percent + "%";
-                }
-            });
-
-            xhr.addEventListener("load", () => {
-                if(xhr.status === 200) {
-                    statusTxt.innerText = "Tải lên hàng loạt thành công!";
-                    progressBar.className = "bg-blue-500 h-3 rounded-full transition-all"; 
-                    showToast(`Đã lưu an toàn ${count} file!`, "success");
-                    
-                    // Reset input
-                    fileInput.value = ""; folderInput.value = "";
-                    document.getElementById('selectedFilesText').innerText = "Chưa chọn file nào.";
-
-                    setTimeout(() => { wrapper.classList.add('hidden'); loadFiles(); }, 1500);
-                } else {
-                    showToast("Tải lên thất bại!", "error");
-                }
-            });
-
-            const pass = localStorage.getItem('gallery_pass');
-            xhr.open("POST", `${BACKEND_URL}/upload/?password=${pass}`);
-            xhr.send(formData);
-        }
-
-        checkLogin();
-    </script>
+  <dialog id="edit-dialog" class="modal compact-modal"><form id="edit-form"><div class="modal-heading"><h2>Sắp xếp kỷ niệm.</h2><button type="button" class="icon-button" data-close="edit-dialog" aria-label="Đóng chỉnh sửa"><svg><use href="#i-close"/></svg></button></div><label for="edit-name">Tên tệp</label><input id="edit-name" required maxlength="240"><label for="edit-album">Album</label><input id="edit-album" list="album-options" required maxlength="110"><p id="edit-error" class="field-error" role="alert" hidden></p><div class="modal-footer"><button type="button" class="button subtle" data-close="edit-dialog">Để sau</button><button class="button primary" type="submit">Lưu thay đổi</button></div></form></dialog>
+  <dialog id="move-dialog" class="modal compact-modal"><form id="move-form"><div class="modal-heading"><h2>Chuyển vào album.</h2><button type="button" class="icon-button" data-close="move-dialog" aria-label="Đóng chuyển album"><svg><use href="#i-close"/></svg></button></div><p id="move-count" class="muted"></p><label for="move-album">Album mới hoặc đã có</label><input id="move-album" list="album-options" required maxlength="110" placeholder="Nhập tên album"><div class="modal-footer"><button type="button" class="button subtle" data-close="move-dialog">Để sau</button><button class="button primary" type="submit">Chuyển album</button></div></form></dialog>
+  <dialog id="delete-dialog" class="modal compact-modal"><div class="modal-heading"><h2>Xóa kỷ niệm này?</h2><button class="icon-button" data-close="delete-dialog" aria-label="Đóng xác nhận xóa"><svg><use href="#i-close"/></svg></button></div><p id="delete-description"></p><p class="delete-warning">Tệp sẽ bị xóa vĩnh viễn khỏi kho ứng dụng trên Drive. Không có thùng rác để khôi phục. Hãy tải bản sao trước nếu cần.</p><div class="modal-footer"><button class="button subtle" data-close="delete-dialog">Giữ lại</button><button id="confirm-delete" class="button danger-button">Xóa vĩnh viễn</button></div></dialog>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 </body>
 </html>
