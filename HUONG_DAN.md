@@ -1,6 +1,6 @@
 # Hướng dẫn dùng Taylor's Vault và deploy lên Render
 
-Ngày cập nhật: **01/10/2026**.
+Ngày cập nhật: **02/10/2026**.
 
 **Nếu bấm ảnh hoặc “Thêm kỷ niệm mới” không phản hồi:** đọc [SUA_LOI_MO_ANH.html](SUA_LOI_MO_ANH.html). Website thật đã được kiểm tra và xác nhận HTML/JavaScript lệch phiên bản. Cần cập nhật đồng bộ file trong đúng Root Directory.
 
@@ -211,7 +211,7 @@ Render Free có thể ngủ sau 15 phút không có truy cập; lần mở tiế
 - **Đổi tên:** bấm biểu tượng bút ở dưới thẻ. Giữ phần đuôi `.jpg`, `.png`, `.mp4`… để tiện mở sau khi tải về. Tên album tối đa 110 byte UTF-8; chữ có dấu chiếm nhiều byte hơn.
 - **Xem:** bấm ảnh/video. Phím `←` và `→` chuyển mục, `Esc` đóng. Video có thanh tua và nút phát của trình duyệt.
 - **Zoom ảnh:** dùng nút `+` / `−`, lăn chuột hoặc chụm hai ngón trên màn hình cảm ứng. Khi ảnh lớn hơn khung, kéo ảnh để xem vùng khác. Nhấp đúp để phóng / trở về vừa khung; nút **1:1** xem kích thước gốc, **Vừa khung** đưa ảnh trở lại. Phím `+`, `−`, `1` và `0` cũng có tác dụng tương ứng. Mức mặc định tối đa 800% kích thước gốc; zoom không làm tăng độ chi tiết của ảnh gốc.
-- **Ảnh gốc nét:** lưới dùng ảnh xem trước nhẹ. Khi bấm mở, website hiện bản nhẹ tạm trong lúc tải file gốc; dòng “Đang tải bản gốc” đổi thành “Bản gốc” và zoom bật khi xong. File gốc được trả nguyên dữ liệu từ Drive, không nén lại hay giảm độ phân giải.
+- **Ảnh gốc nét và tải trước:** lưới dùng ảnh xem trước nhẹ; sau mở khóa, website tự tải lần lượt bản gốc toàn thư viện. Thanh phía trên lưới báo đã tải bao nhiêu ảnh, byte/% của ảnh đang tải, tạm dừng/tiếp tục và thử lại. Thẻ “Gốc đã tải” mở bằng bản đã chuẩn bị, giữ nguyên chất lượng Drive; ảnh chưa có vẫn tải khi mở. Mặc định lưu tạm tối đa 512 MB trên trình duyệt, tự giảm theo chỗ còn lại; fallback RAM 64 MB. Khi đầy, báo số ảnh chưa tải trước, không báo hoàn tất giả. Có thể tăng hoặc tắt trong `static/settings.js`; xem [TAI_TRUOC_ANH_GOC.html](TAI_TRUOC_ANH_GOC.html) để chỉnh và triển khai. Giữ trang mở để tải; video không được tải trước.
 - **Thông tin ảnh/video:** bấm nút **ⓘ** góc trên của cửa sổ xem hoặc phím `I`. Bảng hiện tên, album, dung lượng, định dạng, kích thước, độ phân giải ảnh, ngày tải lên và thời lượng video. Khi Drive cung cấp EXIF, hiện thêm máy ảnh, ống kính, thời gian chụp, khẩu độ, tốc độ màn trập, ISO, tiêu cự, cân bằng trắng và không gian màu. Thiếu dữ liệu thì bỏ trống mục đó và báo rõ; không tự đoán. Ngày tải lên và thời gian chụp là hai thông tin khác nhau. Không lấy tọa độ GPS. Trên điện thoại, info phủ lên ảnh; bấm dấu × trong bảng để tiếp tục zoom.
 - **Tự tùy chỉnh:** mở [TU_CHINH_SUA.html](TU_CHINH_SUA.html) hoặc [TU_CHINH_SUA.md](TU_CHINH_SUA.md). Tên website, nội dung và zoom nằm trong `static/settings.js`; màu nằm trong `static/tokens.css`.
 - **Tải bản gốc:** bấm biểu tượng mũi tên tải xuống trên thẻ hoặc trong cửa sổ xem.

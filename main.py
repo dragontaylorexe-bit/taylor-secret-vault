@@ -165,16 +165,18 @@ def login(body: LoginBody, request: Request, response: Response):
             sessions.pop(next(iter(sessions)))
         token = secrets.token_urlsafe(32)
         csrf = secrets.token_urlsafe(32)
-        sessions[hashlib.sha256(token.encode()).hexdigest()] = {"csrf": csrf, "expires": now + SESSION_SECONDS}
+        # A separate, non-authenticating namespace for temporary browser originals.
+        cache_scope = f"{int(now)}-{secrets.token_hex(12)}"
+        sessions[hashlib.sha256(token.encode()).hexdigest()] = {"csrf": csrf, "expires": now + SESSION_SECONDS, "cache_scope": cache_scope}
     secure = os.getenv("COOKIE_SECURE", str(request.url.scheme == "https")).lower() == "true"
     response.set_cookie("vault_session", token, max_age=SESSION_SECONDS, httponly=True,
                         secure=secure, samesite="strict", path="/")
-    return {"csrf": csrf, "demo": DEMO_MODE, "max_upload_mb": MAX_UPLOAD_MB}
+    return {"csrf": csrf, "demo": DEMO_MODE, "max_upload_mb": MAX_UPLOAD_MB, "cache_scope": cache_scope, "session_expires_at": now + SESSION_SECONDS}
 
 
 @app.get("/auth/session")
 def session_status(entry=Depends(session)):
-    return {"csrf": entry["csrf"], "demo": DEMO_MODE, "max_upload_mb": MAX_UPLOAD_MB}
+    return {"csrf": entry["csrf"], "demo": DEMO_MODE, "max_upload_mb": MAX_UPLOAD_MB, "cache_scope": entry["cache_scope"], "session_expires_at": entry["expires"]}
 
 
 @app.post("/auth/logout")

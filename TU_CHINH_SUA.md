@@ -1,6 +1,6 @@
 # Tự chỉnh website: tên, màu, zoom và thông tin ảnh
 
-Bản cập nhật ngày **01/10/2026**. Bạn có thể chỉnh các mục dưới đây trực tiếp trên GitHub, không cần học toàn bộ mã nguồn. Giữ một bản ZIP dự phòng trước khi sửa.
+Bản cập nhật ngày **02/10/2026**. Bạn có thể chỉnh các mục dưới đây trực tiếp trên GitHub, không cần học toàn bộ mã nguồn. Giữ một bản ZIP dự phòng trước khi sửa.
 
 ## 1. Hai file bạn cần biết
 
@@ -60,7 +60,7 @@ Website nhớ lựa chọn sáng/tối trên từng trình duyệt. Nếu đã c
 
 Zoom 100% nghĩa là một pixel ảnh tương ứng một pixel CSS trên màn hình; nút **Vừa khung** có thể có tỷ lệ thấp hơn với ảnh lớn. Zoom không tạo thêm chi tiết. Video dùng thanh điều khiển riêng và không có thanh zoom ảnh.
 
-**Giữ ảnh nét như bản trên Drive:** khi bấm mở ảnh, cửa sổ xem luôn tải file gốc, không dùng bản đã nén làm ảnh cuối cùng. Bản nhẹ hiện tạm trong lúc chờ; dòng “Đang tải bản gốc” đổi thành “Bản gốc” khi xong. Bấm **1:1** để kiểm tra chi tiết ở độ phân giải gốc. Nút tải về cũng lấy nguyên file gốc. Lưới ảnh dùng bản xem trước để trang mở nhanh hơn.
+**Giữ ảnh nét như bản trên Drive:** cửa sổ xem dùng bản gốc đã tải trước trên trình duyệt; nếu chưa có thì tải gốc khi mở. Bản nhẹ chỉ hiện tạm trong lúc chờ. Bấm **1:1** để kiểm tra chi tiết ở độ phân giải gốc. Nút tải về cũng lấy nguyên file gốc. Lưới ảnh dùng bản xem trước để trang mở nhanh hơn. Không giảm chất lượng của bản gốc khi tải trước.
 
 `previewSize` là giới hạn của ảnh lưới, không bảo đảm thumbnail Drive có đủ độ phân giải đó. Nếu muốn lưới tải nhẹ hơn, giảm xuống `400`; nếu muốn bản xem trước tự tạo rõ hơn trên màn hình lớn, tăng lên `1200`. Xem thêm giới hạn và bộ nhớ đệm ở mục 10 của hướng dẫn triển khai.
 
@@ -78,7 +78,13 @@ Ngày tải lên được lấy từ ngày tạo tệp trong kho Drive; thời g
 
 Muốn đổi nhãn như “Dung lượng” hoặc “Khẩu độ”, tìm hàm `renderInfo` trong `static/app.js` và chỉ đổi chuỗi chữ tương ứng. Đây là chỉnh sửa nâng cao hơn; sao lưu trước và giữ nguyên tên biến như `meta.isoSpeed`. Thêm trường metadata mới có thể cần chỉnh cả `storage.py`, nên không chỉ thêm một dòng chữ trong HTML.
 
-## 5. Đổi màu website
+## 5. Tự chỉnh tải trước ảnh gốc
+
+Trong `static/settings.js`, `preloadOriginals: true` bật hàng đợi tự tải toàn bộ ảnh gốc; `originalCacheMB: 512` đặt trần lưu tạm 512 MB trên trình duyệt. Nếu kho ảnh khoảng 1,5 GB và máy có đủ chỗ, đổi thành `originalCacheMB: 2048` để đặt trần 2 GB. Hạn mức/chỗ trống thực tế của trình duyệt có thể thấp hơn trần bạn đặt. `originalMemoryMB: 64` chỉ dùng khi không thể lưu tạm trên thiết bị, nên thường giữ nguyên.
+
+Giữ dấu phẩy cuối dòng, cập nhật đầy đủ bộ mã lên GitHub rồi deploy Render và Ctrl+F5. Tải lại trang trong cùng phiên giữ các bản hoàn chỉnh nếu trình duyệt cho lưu tạm; khóa thư viện xóa chúng. Xem ví dụ, giới hạn, nút tạm dừng và các bước cập nhật tại [TAI_TRUOC_ANH_GOC.html](TAI_TRUOC_ANH_GOC.html) hoặc [TAI_TRUOC_ANH_GOC.md](TAI_TRUOC_ANH_GOC.md).
+
+## 6. Đổi màu website
 
 Mở `static/tokens.css`. Khối `:root` là màu giao diện tối; khối `[data-theme="light"]` là màu giao diện sáng.
 
@@ -106,7 +112,7 @@ Trong khối giao diện sáng có thể dùng màu đậm hơn, ví dụ `--acc
 
 Một số màu trong cửa sổ xem ảnh được đặt riêng để luôn dễ nhìn trên nền tối. Nếu muốn chỉnh riêng phần đó, tìm `.viewer` trong `static/style.css`. Đổi `--accent` vẫn tác động nhiều nút và điểm nhấn ở cửa sổ này, nhưng không đổi toàn bộ nền info/zoom.
 
-## 6. Sửa trên GitHub rồi cập nhật Render
+## 7. Sửa trên GitHub rồi cập nhật Render
 
 1. Giải nén bản ZIP mới. Đưa toàn bộ mã trong `gallery-updated` lên repository đang kết nối Render. Bản này đổi cả `main.py`, `storage.py`, thêm `previews.py` và thư viện Pillow trong `requirements.txt`, đồng thời đổi `index.html` và `static`. Đừng chỉ tải `settings.js` vì bản cũ chưa có zoom/info và bộ nhớ đệm.
 2. Mở file muốn chỉnh trên GitHub, bấm biểu tượng bút **Edit this file**.
@@ -124,7 +130,7 @@ uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwa
 
 Chỉ dán dòng bắt đầu bằng `uvicorn`, không kèm tiêu đề ô, dấu `|` hoặc dấu nháy ngược. Giữ dấu nháy đơn quanh `*`. Lưu rồi deploy lại. Dòng này phù hợp cấu hình Python Web Service theo [Render — Deploy FastAPI](https://render.com/docs/deploy-fastapi).
 
-## 7. Nếu sửa xong bị lỗi
+## 8. Nếu sửa xong bị lỗi
 
 | Hiện tượng | Cách kiểm tra |
 |---|---|

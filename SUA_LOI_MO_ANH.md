@@ -20,7 +20,7 @@ Dòng JavaScript này tìm nút thông tin chưa có trong HTML. Mã bị dừng
 - Giao diện HTML có đầy đủ phần zoom và info, đi cùng JavaScript tương ứng.
 - Các đường tải CSS/JavaScript có mã phiên bản mới để tránh dùng tài nguyên cũ đã lưu trong trình duyệt.
 - Nếu HTML thiếu các phần mới, website hiện “Bản cập nhật chưa hoàn tất” thay vì chạy nửa chừng với những nút không phản hồi.
-- Có kiểm thử kiểm tra các phần tử mà JavaScript dùng đều tồn tại trong HTML. Tổng cộng **38/38 kiểm thử thành công**.
+- Có kiểm thử kiểm tra các phần tử mà JavaScript dùng đều tồn tại trong HTML. Bản sửa ngày 01/10 vượt **38/38** kiểm thử; bản bổ sung tải trước ngày 02/10 vượt **39/39** kiểm thử Python và **22/22** kiểm thử hàng đợi JavaScript.
 
 Ảnh gốc, zoom, info và ảnh xem trước vẫn giữ các chức năng trong bản trước. Hướng dẫn chung nằm trong `HUONG_DAN.html`; hướng dẫn tự chỉnh tên, màu và zoom nằm trong `TU_CHINH_SUA.html`.
 

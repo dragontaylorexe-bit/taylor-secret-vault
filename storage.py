@@ -11,7 +11,7 @@ from urllib.parse import urlsplit
 
 import requests
 
-FIELDS = ("id,name,mimeType,size,createdTime,modifiedTime,version,thumbnailLink,appProperties,spaces,"
+FIELDS = ("id,name,mimeType,size,createdTime,modifiedTime,version,md5Checksum,thumbnailLink,appProperties,spaces,"
           "imageMediaMetadata(width,height,rotation,time,cameraMake,cameraModel,lens,exposureTime,aperture,focalLength,isoSpeed,whiteBalance,colorSpace),"
           "videoMediaMetadata(width,height,durationMillis)")
 API = "https://www.googleapis.com/drive/v3/files"

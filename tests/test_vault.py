@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import time
 import re
 import sys
 import unittest
@@ -48,7 +49,7 @@ class VaultTests(unittest.TestCase):
         finally: os.chdir(previous)
 
     def test_static_and_security_headers(self):
-        for path in ["/static/app.js", "/static/settings.js", "/static/style.css", "/static/tokens.css", "/static/favicon.svg"]:
+        for path in ["/static/app.js", "/static/originals.js", "/static/settings.js", "/static/style.css", "/static/tokens.css", "/static/favicon.svg"]:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.headers["X-Content-Type-Options"], "nosniff")
@@ -63,6 +64,19 @@ class VaultTests(unittest.TestCase):
         self.assertEqual(control_ids - html_ids, set(), "HTML and JavaScript must be deployed together")
         self.assertIn("/static/settings.js?v=", html)
         self.assertIn("/static/app.js?v=", html)
+        self.assertIn("/static/originals.js?v=", html)
+
+    def test_original_cache_scope_is_separate_from_credentials_and_stable_until_logout(self):
+        response = self.client.post("/auth/login", json={"password": "Only-A-Test-Password-2026"})
+        data = response.json()
+        self.assertRegex(data["cache_scope"], r"^[0-9]{10}-[a-f0-9]{24}$")
+        self.assertNotEqual(data["cache_scope"], self.client.cookies.get("vault_session"))
+        self.assertNotEqual(data["cache_scope"], data["csrf"])
+        self.assertEqual(self.client.get("/auth/session").json()["cache_scope"], data["cache_scope"])
+        self.assertGreater(data["session_expires_at"], time.time())
+        self.client.post("/auth/logout", headers={"X-CSRF-Token": data["csrf"]})
+        newer = self.client.post("/auth/login", json={"password": "Only-A-Test-Password-2026"}).json()
+        self.assertNotEqual(data["cache_scope"], newer["cache_scope"])
 
     def test_unauthorized_and_legacy_password(self):
         client = TestClient(main.app)

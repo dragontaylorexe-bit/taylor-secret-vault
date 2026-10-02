@@ -1,0 +1,157 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tự tải trước ảnh gốc · Cách dùng và tự chỉnh</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f6fb;color:#2d2437;font:15px/1.85 "Segoe UI",Arial,sans-serif}aside{position:fixed;inset:0 auto 0 0;width:255px;padding:32px 22px;background:#17131f;color:#cfc6dc;overflow:auto}aside strong{display:block;color:#c1a2f1;font-size:21px;margin-bottom:8px}aside small{font-size:11px;color:#9788a9}.toc ul{list-style:none;padding:0;margin-top:32px}.toc li{margin:14px 0;font-size:12px;line-height:1.6}.toc a{color:#cfc6dc;text-decoration:none}.toc a:hover{color:white}main{max-width:1100px;margin-left:255px;padding:48px 55px 80px}h1{font:400 36px/1.3 Cambria,Georgia,serif;color:#271c35;margin:10px 0 20px}h2{font-size:24px;line-height:1.4;margin:55px 0 16px;border-top:1px solid #e2d9ec;padding-top:25px;scroll-margin-top:25px}h3{font-size:18px;margin:30px 0 12px;color:#614681}a{color:#8155b4}p{margin:14px 0}li{margin:8px 0}code{font-family:Consolas,monospace;font-size:13px;background:#ece5f4;color:#563d75;padding:2px 4px;border-radius:4px}pre{background:#211a2c;color:#e8dfef;padding:18px 22px;border-radius:11px;overflow:auto;font-size:13px;line-height:1.7}pre code{background:none;color:inherit;padding:0;white-space:pre}table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow:auto;margin:24px 0}th{background:#ece5f4;text-align:left;color:#5b427b}th,td{padding:12px 15px;border:1px solid #ded3e9}td:first-child{min-width:170px}blockquote{padding:8px 20px;border-left:3px solid #a480cf;background:#f0eaf6}.doc-label{font-size:11px;color:#9774ba;letter-spacing:2px}.footer{border-top:1px solid #ddd2e8;margin-top:45px;padding-top:20px;font-size:12px;color:#82728f}@media(max-width:850px){aside{position:relative;width:auto;max-height:none;padding:24px}.toc ul{margin-top:15px}.toc li{margin:8px 0}main{margin:0;padding:30px 24px}h1{font-size:29px}h2{font-size:22px}}@media print{aside{display:none}main{margin:0;padding:0;max-width:none}body{background:white;font-size:11px}h1{font-size:25px}h2{font-size:18px;margin-top:20px;break-after:avoid}pre{white-space:pre-wrap;background:#f3eef8;color:#241b2e;border:1px solid #d6c9e4}pre code{white-space:pre-wrap}table{font-size:10px}a{color:#563d75}}main img{display:block;max-width:100%;height:auto;border-radius:10px;margin:24px 0;border:1px solid #ded3e9}</style></head><body><aside><strong>Taylor’s Vault</strong><small>HƯỚNG DẪN CHI TIẾT · 02/10/2026</small><div class="toc">
+<ul>
+<li><a href="#1-thanh-trang-thai-cho-biet-nhung-gi">1. Thanh trạng thái cho biết những gì?</a></li>
+<li><a href="#2-vi-sao-dung-ca-anh-nhe-va-ban-goc">2. Vì sao dùng cả ảnh nhẹ và bản gốc?</a></li>
+<li><a href="#3-tam-dung-tiep-tuc-va-giu-tien-o">3. Tạm dừng, tiếp tục và giữ tiến độ</a></li>
+<li><a href="#4-tu-tang-dung-luong-hoac-tat-tai-truoc">4. Tự tăng dung lượng hoặc tắt tải trước</a></li>
+<li><a href="#5-ban-luu-nam-o-au-va-giu-bao-lau">5. Bản lưu nằm ở đâu và giữ bao lâu?</a></li>
+<li><a href="#6-cap-nhat-ban-nay-len-website-hien-co">6. Cập nhật bản này lên website hiện có</a></li>
+<li><a href="#7-cac-tinh-huong-thuong-gap">7. Các tình huống thường gặp</a></li>
+</ul>
+</div>
+</aside><main><span class="doc-label">MÃ NGUỒN · GOOGLE DRIVE · GITHUB · RENDER</span><h1 id="tu-tai-truoc-anh-goc-cach-dung-va-tu-chinh">Tự tải trước ảnh gốc — cách dùng và tự chỉnh</h1>
+<p>Bản cập nhật ngày 02/10/2026. Website tự chuẩn bị ảnh gốc sau khi bạn mở khóa, tải lần lượt toàn bộ thư viện ảnh. Khi mở một ảnh có nhãn <strong>Gốc đã tải</strong>, cửa sổ xem dùng bản lưu tạm trên trình duyệt, không chờ tải lại từ Google Drive. Ảnh vẫn giữ nguyên dữ liệu và độ phân giải gốc; việc đọc/giải mã ảnh trên máy vẫn cần một chút thời gian.</p>
+<p>Đây là tính năng trong bộ mã nguồn mới. Bạn cần cập nhật GitHub và để Render triển khai bản mới thì website thật mới có tính năng này. Không cần tạo lại token Drive hoặc thay mật khẩu.</p>
+<h2 id="1-thanh-trang-thai-cho-biet-nhung-gi">1. Thanh trạng thái cho biết những gì?</h2>
+<p>Thanh <strong>Chuẩn bị ảnh gốc</strong> nằm phía trên lưới ảnh:</p>
+<p><img alt="Thanh tải trước ở bản thử cục bộ" src="TAI_TRUOC_ANH_GOC.png" /></p>
+<ul>
+<li><strong>12 / 50 ảnh gốc:</strong> đã tải hoàn chỉnh và lưu được 12 bản gốc trên trình duyệt này, tổng cộng có 50 ảnh trong toàn thư viện. Đếm tất cả ảnh, kể cả ảnh ở album khác hoặc chưa hiện trên lưới; không đếm video.</li>
+<li><strong>Đang tải · tên ảnh:</strong> ảnh đang được chuẩn bị, số byte và phần trăm của riêng ảnh đó. Nếu máy chủ không cung cấp tổng dung lượng, chỉ hiện số byte đã nhận và thanh đang chạy.</li>
+<li><strong>Đã tải xong tất cả bản gốc:</strong> mọi ảnh hiện có đã tải xong. Thanh tổng chỉ tính ảnh hoàn chỉnh, không báo 100% chỉ vì đã gửi yêu cầu.</li>
+<li><strong>Gốc đã tải:</strong> nhãn nhỏ trên thẻ ảnh. Bấm mở dùng bản đã tải; zoom 1:1 và bảng info vẫn hoạt động.</li>
+<li><strong>Đã đạt giới hạn lưu tạm:</strong> vẫn còn ảnh chưa tải trước. Những ảnh đã tải được giữ lại, không tự xóa rồi tải xoay vòng. Bạn vẫn mở ảnh còn lại để tải gốc khi cần.</li>
+<li><strong>Một số bản gốc chưa tải được:</strong> lỗi không được tính là hoàn tất. Bấm <strong>Thử lại ảnh lỗi</strong> sau khi mạng ổn định.</li>
+</ul>
+<p>“Đã tải” nói về dữ liệu gốc đã nhận đủ, không phải cam kết trình duyệt hỗ trợ mọi định dạng. HEIC/TIFF hoặc một số codec vẫn có thể cần tải file về và mở bằng ứng dụng phù hợp.</p>
+<p><img alt="Trạng thái đã chuẩn bị đủ ảnh ở bản thử cục bộ" src="ANH_GOC_DA_SAN_SANG.png" /></p>
+<h2 id="2-vi-sao-dung-ca-anh-nhe-va-ban-goc">2. Vì sao dùng cả ảnh nhẹ và bản gốc?</h2>
+<p>Lưới tiếp tục dùng ảnh nhẹ để bạn tìm và cuộn nhanh. Một hàng đợi riêng tải bản gốc từng ảnh, ưu tiên ảnh trong album/kết quả bạn đang xem, rồi tiếp tục các ảnh còn lại trong thư viện. Website không giải mã và giữ tất cả ảnh lớn trên màn hình cùng lúc.</p>
+<p>Nếu bạn mở ảnh đang tải, cửa sổ xem chờ chính lượt tải đó, không tải trùng. Nếu mở một ảnh chưa được chuẩn bị, trang có thể dùng thêm một lượt tải ưu tiên; tối đa hai lượt tải gốc cùng lúc trong một trang. Hàng đợi nền chờ các lượt này hoàn tất rồi tiếp tục. Ảnh đã tải xong được dùng lại ở các lần mở sau trong cùng phiên.</p>
+<p>Ảnh mới được tự thêm vào hàng đợi. Khi sửa tên, album hoặc yêu thích, checksum nội dung do Drive cung cấp giúp giữ lại bản gốc không thay đổi. Nếu nội dung ảnh thay đổi hoặc tệp bị xóa, bản lưu cũ được loại khỏi danh sách khi thư viện cập nhật.</p>
+<h2 id="3-tam-dung-tiep-tuc-va-giu-tien-o">3. Tạm dừng, tiếp tục và giữ tiến độ</h2>
+<ul>
+<li><strong>Tạm dừng:</strong> ảnh đang tải được hoàn tất để không phí phần dữ liệu đã tải; các ảnh kế tiếp chờ. Những bản đã tải vẫn mở được. Bạn vẫn có thể bấm mở một ảnh khác để tải riêng ảnh đó.</li>
+<li><strong>Tiếp tục:</strong> tiếp tục những ảnh còn thiếu; không bắt đầu lại từ đầu.</li>
+<li><strong>Thử lại ảnh lỗi:</strong> chỉ thử lại những ảnh lỗi/chưa tải được, giữ nguyên những ảnh đã có.</li>
+<li>Khi bạn đang gửi ảnh/video lên Drive, hàng đợi nền chờ sau ảnh đang tải và tiếp tục khi việc tải lên xong.</li>
+<li>Khi mất mạng, hàng đợi chờ kết nối trở lại. Ảnh đã tải vẫn có thể xem trong trang đang mở; đây không phải chế độ đăng nhập/xem toàn website ngoại tuyến.</li>
+<li>Tải lại trang trong cùng phiên mở khóa: giữ các bản đã tải nếu trình duyệt hỗ trợ lưu tạm. Chế độ tự tải lại theo cấu hình mặc định; lựa chọn Tạm dừng không được nhớ qua lần tải lại trang. Một ảnh đang tải dở có thể phải tải lại từ đầu.</li>
+</ul>
+<p>Giữ trang mở trong lúc chuẩn bị thư viện. Khi bạn đóng tab/trình duyệt, hoặc điện thoại đưa trình duyệt vào trạng thái ngủ, việc tải có thể dừng. Tính năng không chạy trên máy chủ khi bạn đã đóng website.</p>
+<h2 id="4-tu-tang-dung-luong-hoac-tat-tai-truoc">4. Tự tăng dung lượng hoặc tắt tải trước</h2>
+<p>Mở file <strong><code>static/settings.js</code></strong> trong thư mục đã giải nén. Tìm ba dòng này:</p>
+<pre><code class="language-javascript">  preloadOriginals: true,
+  originalCacheMB: 512,
+  originalMemoryMB: 64,
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Mục</th>
+<th>Ý nghĩa</th>
+<th>Cách chỉnh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preloadOriginals</code></td>
+<td>Bật tự tải ảnh gốc toàn thư viện</td>
+<td><code>true</code> để bật, <code>false</code> để chỉ tải khi mở; vẫn có nút Tiếp tục để bật trong trang</td>
+</tr>
+<tr>
+<td><code>originalCacheMB</code></td>
+<td>Trần dung lượng lưu tạm bản gốc trên trình duyệt</td>
+<td>Mặc định <code>512</code>, chấp nhận từ <code>16</code> đến <code>4096</code> MB</td>
+</tr>
+<tr>
+<td><code>originalMemoryMB</code></td>
+<td>Trần RAM khi trình duyệt không hỗ trợ/không cho lưu tạm trên thiết bị</td>
+<td>Mặc định <code>64</code>, chấp nhận từ <code>16</code> đến <code>256</code> MB; không cần tăng nếu trang hiện “Lưu tạm trên trình duyệt”</td>
+</tr>
+</tbody>
+</table>
+<p>Ví dụ, bạn chủ yếu xem trên máy tính và kho ảnh khoảng 1,5 GB:</p>
+<pre><code class="language-javascript">  preloadOriginals: true,
+  originalCacheMB: 2048,
+  originalMemoryMB: 64,
+</code></pre>
+<p>Kho khoảng 100 ảnh × 5 MB cần khoảng 500 MB. Nếu muốn tải trước hết, đặt <code>originalCacheMB</code> cao hơn tổng dung lượng ảnh một chút. Máy có ít chỗ trống hoặc điện thoại có thể dùng <code>256</code>; khi đó kho lớn hơn sẽ chỉ được chuẩn bị một phần. Số MB trong cấu hình được tính theo 1024 × 1024 byte.</p>
+<p>Trình duyệt cũng có hạn mức riêng. Website lấy tối đa 30% phần dung lượng còn lại mà trình duyệt báo, và không vượt giá trị bạn đặt. Vì vậy nhập <code>4096</code> không đảm bảo thiết bị giữ được đủ 4 GB. Nếu chỗ lưu đầy, trang dừng tải trước, báo số ảnh còn thiếu và vẫn cho mở ảnh gốc. Bản gốc vượt trần lưu tạm được mở trực tiếp khi bấm xem.</p>
+<p>Chỉ sửa giá trị bên phải. Giữ dấu phẩy cuối dòng; <code>true</code>/<code>false</code> và số không đặt trong dấu nháy. Lưu file, cập nhật GitHub, chờ Render deploy và bấm <strong>Ctrl+F5</strong>. Nếu kho vẫn không đủ chỗ, xem phần dung lượng trên thanh trạng thái; nó phản ánh giới hạn thực tế của trình duyệt, không chỉ con số bạn nhập.</p>
+<h2 id="5-ban-luu-nam-o-au-va-giu-bao-lau">5. Bản lưu nằm ở đâu và giữ bao lâu?</h2>
+<p>Trên trình duyệt hỗ trợ, bản gốc được giữ trong kho tạm của website trên thiết bị. Không có file tự xuất ra thư mục Downloads. Muốn có file lưu riêng, dùng nút tải về như trước.</p>
+<p>Bản tạm được gắn với phiên mở khóa, tách riêng khỏi mật khẩu/cookie đăng nhập. Bạn tải lại trang hoặc mở thêm tab trong cùng phiên thì có thể dùng lại các ảnh hoàn chỉnh. Mỗi trang có hàng đợi riêng; để tránh tải trùng các ảnh chưa xong, nên chỉ giữ một tab trong lúc chuẩn bị kho.</p>
+<p><strong>Khóa thư viện</strong> sẽ dừng tải, đóng ảnh đang xem và yêu cầu trình duyệt xóa kho tạm của phiên đó. Các tab đang mở cùng website được thông báo khóa qua BroadcastChannel khi trình duyệt hỗ trợ. Phiên hết hạn tối đa sau 12 giờ; trang cũng tự khóa theo thời hạn đó. Khóa thư viện không xóa ảnh thật trên Drive.</p>
+<p>Trình duyệt có thể tự thu hồi dữ liệu tạm khi thiếu chỗ, ở chế độ riêng tư, hoặc khi bạn xóa dữ liệu website. Bản tạm không thay thế bản sao lưu. Nếu dịch vụ restart và phiên cũ không còn hợp lệ, cần mở khóa lại; các kho tạm cũ quá 12 giờ được dọn vào một lần mở khóa sau. Cache không được dùng để bỏ qua màn hình đăng nhập.</p>
+<p>Nếu trang hiện <strong>Lưu tạm trong bộ nhớ</strong>, trình duyệt không hỗ trợ/không cho dùng kho tạm. Trang dùng RAM có giới hạn và không giữ tiến độ khi tải lại trang. Việc lưu tạm trên thiết bị cần HTTPS; website Render có HTTPS, còn khi thử trên máy dùng địa chỉ <code>http://127.0.0.1:8000</code> hoặc <code>http://localhost:8000</code>.</p>
+<h2 id="6-cap-nhat-ban-nay-len-website-hien-co">6. Cập nhật bản này lên website hiện có</h2>
+<ol>
+<li>Tải và giải nén <strong>Taylors-Vault-Originals-Preload.zip</strong>. Mở thư mục <code>gallery-updated</code> bên trong.</li>
+<li>Giữ nguyên các biến bí mật đã cấu hình trên Render. Không đưa token/mật khẩu vào GitHub.</li>
+<li>Trong GitHub, mở repo <code>taylor-secret-vault</code> và đúng branch mà Render đang chạy. Nếu <code>main.py</code> đang ở gốc repo, đưa <strong>nội dung bên trong</strong> <code>gallery-updated</code> vào gốc repo. Nếu bạn đặt code trong thư mục con, Root Directory trên Render phải trỏ tới thư mục chứa <code>main.py</code>.</li>
+<li>Cập nhật <strong>đầy đủ bộ mã</strong> trong một commit, nhất là <code>main.py</code>, <code>storage.py</code>, <code>index.html</code>, toàn bộ <code>static/</code> gồm file mới <code>originals.js</code>, <code>settings.js</code>, <code>app.js</code>, <code>style.css</code>. Không chỉ thay JavaScript: bản này cần thông tin phiên từ server và các nút/thanh mới trong HTML.</li>
+<li>Commit bằng tên dễ nhớ, ví dụ <code>Add automatic original photo preload</code>.</li>
+<li>Trên Render, chọn <strong>Manual Deploy → Deploy latest commit</strong> nếu chưa tự deploy. Build Command giữ <code>pip install -r requirements.txt</code>.</li>
+<li>Start Command chỉ dán đúng dòng dưới:</li>
+</ol>
+<pre><code class="language-text">uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips '*'
+</code></pre>
+<ol>
+<li>Khi dịch vụ báo Live, mở <a href="https://taylor-secret-vault.onrender.com/">website của bạn</a>, bấm <strong>Ctrl+F5</strong>, mở khóa thư viện. Thanh tải gốc bắt đầu chạy.</li>
+<li>Chờ một vài ảnh có nhãn <strong>Gốc đã tải</strong>, mở ảnh, zoom 1:1, đóng và mở lại. Thử tải lại trang: các ảnh đã hoàn chỉnh vẫn được tính nếu đang dùng lưu tạm trên trình duyệt và phiên chưa hết hạn.</li>
+</ol>
+<p>Nếu muốn hướng dẫn từ đầu về Drive, GitHub và Render, mở <a href="HUONG_DAN.html">HUONG_DAN.html</a>. Nếu lại gặp tình trạng các nút không phản hồi, mở <a href="SUA_LOI_MO_ANH.html">SUA_LOI_MO_ANH.html</a>.</p>
+<h2 id="7-cac-tinh-huong-thuong-gap">7. Các tình huống thường gặp</h2>
+<table>
+<thead>
+<tr>
+<th>Hiện tượng</th>
+<th>Ý nghĩa và cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Không thấy thanh tải gốc</td>
+<td>Render còn chạy bản cũ, sai branch/Root Directory hoặc cập nhật thiếu HTML. Cập nhật đầy đủ, deploy lại, Ctrl+F5.</td>
+</tr>
+<tr>
+<td>Bản cập nhật chưa hoàn tất</td>
+<td>Thiếu file mới hoặc HTML/JavaScript không khớp phiên bản; dùng cả bộ ZIP.</td>
+</tr>
+<tr>
+<td>Đã tải 30/100 rồi dừng</td>
+<td>Xem tiêu đề: có thể tạm dừng, mất mạng, lỗi ảnh hoặc đạt giới hạn lưu. Tăng cấu hình chỉ giúp trường hợp trần bạn đặt quá nhỏ; trình duyệt vẫn có thể giới hạn thấp hơn.</td>
+</tr>
+<tr>
+<td>Ảnh lớn nhất chưa tải trước nhưng các ảnh nhỏ đã xong</td>
+<td>Khi ảnh lớn không vừa chỗ lưu còn lại, hàng đợi chuyển sang ảnh nhỏ hơn; mở ảnh lớn vẫn xem/tải được bản gốc.</td>
+</tr>
+<tr>
+<td>Phần trăm đạt 100% nhưng số ảnh chưa tăng ngay</td>
+<td>Dữ liệu đã nhận xong nhưng trình duyệt đang ghi bản tạm. Chỉ cộng sau khi ghi thành công.</td>
+</tr>
+<tr>
+<td>Ảnh báo lỗi</td>
+<td>Kiểm tra mạng/quyền Drive, bấm Thử lại ảnh lỗi. Thử mở/tải gốc để biết file thật có dùng được không.</td>
+</tr>
+<tr>
+<td>Đổi tên làm một ảnh phải tải lại</td>
+<td>Drive thường có checksum nội dung để giữ bản cũ. Nếu thiếu checksum, phiên bản/ngày sửa được dùng thay thế và có thể yêu cầu tải lại.</td>
+</tr>
+<tr>
+<td>Đã tải xong nhưng ảnh vẫn không mở</td>
+<td>Định dạng có thể không được trình duyệt hỗ trợ; tải gốc về, hoặc dùng JPEG/PNG/WebP để xem rộng rãi.</td>
+</tr>
+<tr>
+<td>Mở trên thiết bị khác chưa có bản gốc</td>
+<td>Bản tạm nằm trên từng trình duyệt/thiết bị; cần chuẩn bị ở thiết bị mới.</td>
+</tr>
+<tr>
+<td>Mạng/Render vẫn chậm</td>
+<td>Tải trước dời thời gian chờ sang lúc chuẩn bị, không tăng tốc đường truyền. Lần tải đầu vẫn đi qua Drive → Render → trình duyệt.</td>
+</tr>
+</tbody>
+</table>
+<p>Tải trước toàn kho dùng băng thông tương ứng với dung lượng ảnh thật, kể cả ảnh bạn không mở. Dùng nút Tạm dừng khi cần; không tải video trước để tránh tiêu tốn nhiều dữ liệu. Kết quả kiểm tra đi kèm là demo tại máy, chưa đo tốc độ Drive/Render thật của bạn.</p>
+<p>Chi tiết nền tảng: <a href="https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage">MDN — CacheStorage</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria">MDN — hạn mức và thu hồi bộ nhớ</a>, <a href="https://developers.google.com/workspace/drive/api/reference/rest/v3/files">Google Drive — checksum nội dung tệp</a>.</p><div class="footer">Tài liệu đi kèm bản ZIP. Không cần Internet để đọc; các liên kết nguồn cần kết nối mạng.</div></main></body></html>

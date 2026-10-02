@@ -9,6 +9,9 @@ window.VAULT_SETTINGS = {
   uploadButtonText: "Thêm kỷ niệm mới",
   defaultTheme: "dark",                     // "dark" hoặc "light" (lựa chọn đã nhớ được ưu tiên)
   previewSize: 800,                         // Cạnh dài tối đa ảnh lưới (200–1200 px); bản gốc không đổi
+  preloadOriginals: true,                   // Tự tải lần lượt bản gốc của TẤT CẢ ảnh sau khi mở khóa
+  originalCacheMB: 512,                     // Giữ tối đa 512 MB bản gốc trên trình duyệt (16–4096 MB)
+  originalMemoryMB: 64,                     // Nếu trình duyệt không cho lưu tạm: dùng tối đa 64 MB RAM
   zoomMaxPercent: 800,                      // 800 = phóng tối đa 8 lần kích thước gốc
   zoomStep: 1.25,                           // Mỗi lần bấm + / - thay đổi 25%
   showCameraMetadata: true,                 // Hiện thông số máy ảnh khi Drive cung cấp

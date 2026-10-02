@@ -6,6 +6,8 @@ Kho ảnh/video riêng cho một chủ sở hữu, dùng FastAPI và Google Driv
 
 Để đổi tên, màu và zoom, đọc [TU_CHINH_SUA.md](TU_CHINH_SUA.md) hoặc mở `TU_CHINH_SUA.html`.
 
+**Mới ngày 02/10:** tự tải trước ảnh gốc từng ảnh, thanh trạng thái toàn thư viện và lưu tạm trên trình duyệt. Đọc [TAI_TRUOC_ANH_GOC.md](TAI_TRUOC_ANH_GOC.md) hoặc mở `TAI_TRUOC_ANH_GOC.html` để dùng, tăng dung lượng và cập nhật website hiện có.
+
 Nếu bấm ảnh hoặc thêm kỷ niệm không phản hồi, đọc [SUA_LOI_MO_ANH.md](SUA_LOI_MO_ANH.md). Bộ mã cần được cập nhật đồng bộ, đặc biệt là `index.html` và `static/app.js`.
 
 ## Đã thay đổi
@@ -21,6 +23,8 @@ Nếu bấm ảnh hoặc thêm kỷ niệm không phản hồi, đọc [SUA_LOI_
 - Bảng info hiện kích thước, dung lượng, định dạng, ngày tải lên; EXIF máy ảnh khi Drive cung cấp; thời lượng video.
 - File `static/settings.js` có chú thích tiếng Việt; bảng màu `static/tokens.css` chia từng dòng dễ chỉnh.
 - Lưới tải ảnh xem trước nhẹ, cache RAM có giới hạn; cửa sổ xem và nút tải về giữ nguyên file gốc trên Drive.
+- Tự tải lần lượt bản gốc toàn thư viện; báo số ảnh hoàn chỉnh, byte/% của ảnh đang tải, tạm dừng/tiếp tục/thử lại; ảnh mới tự vào hàng đợi.
+- Dùng lại bản gốc đã chuẩn bị khi xem; giữ tiến độ qua tải lại trang trong cùng phiên nếu trình duyệt cho lưu tạm; mặc định 512 MB, fallback RAM 64 MB, xóa bản tạm khi khóa.
 - Cảnh báo khi HTML thiếu phần mới; mã phiên bản tài nguyên giao diện và kiểm thử sự tương thích giữa HTML/JavaScript.
 - Phiên đăng nhập bằng cookie HttpOnly, kiểm tra CSRF, giới hạn thử mật khẩu, xác nhận trước khi xóa vĩnh viễn.
 - Đọc nhiều trang danh sách Drive, kiểm tra tệp thuộc `appDataFolder`, báo lỗi token/quyền/kết nối bằng tiếng Việt.
@@ -51,6 +55,12 @@ python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
 
+Kiểm thử hàng đợi tải gốc (chỉ cần Node.js khi chạy kiểm thử này, không cần khi deploy):
+
+```text
+node --test tests/test_originals.cjs
+```
+
 Các kiểm thử Drive dùng phản hồi giả lập và không gửi yêu cầu tới tài khoản Google. Chế độ demo lưu thay đổi trong RAM, tối đa 50 MB toàn kho; khởi động lại sẽ trở về hình minh họa.
 
 ## Giới hạn
@@ -59,7 +69,7 @@ Các kiểm thử Drive dùng phản hồi giả lập và không gửi yêu c�
 
 Xóa là vĩnh viễn vì Drive không hỗ trợ đưa tệp `appDataFolder` vào thùng rác. HEIC/TIFF và một số codec video có thể không xem trực tiếp được trong trình duyệt; nút tải bản gốc vẫn sử dụng được. Chọn thư mục tùy trình duyệt; trên điện thoại hãy chọn nhiều tệp nếu không có chức năng thư mục.
 
-Pillow chỉ tạo bản xem trước cho ảnh phù hợp. Nếu không có thumbnail Drive, lần đầu cần tải nguồn tối đa 20 MB / 40 MP về máy chủ; vượt giới hạn hoặc không đọc được thì thẻ hiện nút mở/tải gốc. Không giới hạn độ phân giải ảnh gốc theo giới hạn preview. Cache ảnh riêng tư phải xác thực lại; metadata có thể chậm cập nhật tối đa 60 giây khi tệp đổi từ bên ngoài website.
+Pillow chỉ tạo bản xem trước cho ảnh phù hợp. Nếu không có thumbnail Drive, lần đầu cần tải nguồn tối đa 20 MB / 40 MP về máy chủ; vượt giới hạn hoặc không đọc được thì thẻ hiện nút mở/tải gốc. Không giới hạn độ phân giải ảnh gốc theo giới hạn preview. Các đường dẫn ảnh từ máy chủ đều kiểm tra đăng nhập; bản gốc lưu tạm được dùng trong phiên mở khóa và xóa khi khóa thư viện. Metadata có thể chậm cập nhật tối đa 60 giây khi tệp đổi từ bên ngoài website.
 
 ## Nguồn chính thức
 

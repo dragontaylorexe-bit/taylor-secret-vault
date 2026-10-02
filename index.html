@@ -7,9 +7,10 @@
   <meta name="description" content="Kho ảnh và video riêng tư của Taylor. Lưu giữ những điều đáng nhớ.">
   <title>Taylor's Vault · Kho kỷ niệm riêng tư</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-  <link rel="stylesheet" href="/static/style.css?v=20261001-viewer-fix">
-  <script src="/static/settings.js?v=20261001-viewer-fix" defer></script>
-  <script src="/static/app.js?v=20261001-viewer-fix" defer></script>
+  <link rel="stylesheet" href="/static/style.css?v=20261002-originals">
+  <script src="/static/settings.js?v=20261002-originals" defer></script>
+  <script src="/static/originals.js?v=20261002-originals" defer></script>
+  <script src="/static/app.js?v=20261002-originals" defer></script>
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -65,6 +66,12 @@
         <section class="library"><div class="library-heading"><div><span class="eyebrow">BỘ SƯU TẬP CỦA BẠN</span><h2 id="library-title">Tất cả kỷ niệm <span id="result-count">0</span></h2></div><div class="heading-actions"><button id="select-toggle" class="button subtle">Chọn nhiều</button><button id="refresh" class="icon-button" title="Tải lại thư viện" aria-label="Tải lại thư viện"><svg><use href="#i-refresh"/></svg></button></div></div>
           <div class="toolbar"><label class="search-box"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Tìm tên ảnh, video hoặc album…" aria-label="Tìm trong thư viện"><kbd>/</kbd></label><div class="toolbar-right"><select id="sort" aria-label="Sắp xếp"><option value="newest">Mới nhất trước</option><option value="oldest">Cũ nhất trước</option><option value="name">Tên A → Z</option><option value="largest">Dung lượng lớn nhất</option></select><div class="view-switch" role="group" aria-label="Kiểu hiển thị"><button id="view-grid" class="icon-button active" aria-label="Lưới đều" aria-pressed="true"><svg><use href="#i-grid"/></svg></button><button id="view-masonry" class="icon-button" aria-label="Lưới so le" aria-pressed="false"><svg><use href="#i-columns"/></svg></button></div></div></div>
           <div id="filter-chips" class="filter-chips" aria-label="Lọc album"></div>
+          <section id="original-status" class="original-status" aria-label="Tiến độ tải trước ảnh gốc">
+            <div class="original-heading"><span class="original-symbol"><svg><use href="#i-download"/></svg></span><div><strong id="original-title" role="status" aria-live="polite">Chuẩn bị ảnh gốc</strong><p id="original-detail">Tải lần lượt để mở ảnh nhanh hơn.</p></div><div class="original-actions"><button id="original-retry" class="button subtle" hidden>Thử lại ảnh lỗi</button><button id="original-pause" class="button subtle" aria-pressed="false">Tạm dừng</button></div></div>
+            <div class="original-progress-row"><progress id="original-progress" max="1" value="0" aria-label="Số bản gốc đã tải xong"></progress><span id="original-count">0 / 0 ảnh</span></div>
+            <div id="original-current" class="original-current" hidden><span id="original-current-name"></span><span id="original-current-bytes"></span><progress id="original-file-progress" max="1" value="0" aria-label="Tiến độ ảnh gốc đang tải"></progress></div>
+            <small id="original-storage"></small>
+          </section>
           <div id="error-banner" class="banner error-banner" role="alert" hidden><span id="error-text"></span><button id="error-retry" class="button subtle">Thử lại</button></div>
           <div id="bulk-bar" class="bulk-bar" hidden><span id="selection-count">Đã chọn 0 tệp</span><button id="select-all" class="button subtle">Chọn tất cả đang hiển thị</button><button id="bulk-album" class="button subtle"><svg><use href="#i-folder"/></svg> Chuyển album</button><button id="bulk-favorite" class="icon-button" title="Thêm vào yêu thích" aria-label="Thêm các tệp đã chọn vào yêu thích"><svg><use href="#i-heart"/></svg></button><button id="bulk-delete" class="icon-button danger" title="Xóa các tệp đã chọn" aria-label="Xóa các tệp đã chọn"><svg><use href="#i-trash"/></svg></button></div>
           <div id="loading" class="loading" hidden><span class="spinner"></span> Đang mở những kỷ niệm của bạn…</div>

@@ -5,8 +5,9 @@
 const requiredViewerIds = ["viewer", "viewer-media", "viewer-info", "viewer-info-toggle", "viewer-info-close",
   "viewer-info-values", "viewer-info-note", "viewer-help", "viewer-zoom", "zoom-in", "zoom-out",
   "zoom-original", "zoom-fit", "zoom-level"];
+requiredViewerIds.push("original-status", "original-title", "original-detail", "original-count", "original-progress", "original-pause", "original-retry", "original-current", "original-current-name", "original-current-bytes", "original-file-progress", "original-storage");
 const missingIds = requiredViewerIds.filter((id) => !document.getElementById(id));
-if (missingIds.length) {
+if (missingIds.length || !window.VaultOriginals) {
   console.error("Vault update incomplete. Missing elements:", missingIds.join(", "));
   for (const id of ["login-screen", "app-screen"]) {
     const screen = document.getElementById(id); if (screen) screen.hidden = true;
@@ -42,6 +43,51 @@ const mediaUrl = (id, download = false) => `/stream/${encodeURIComponent(id)}${d
 const previewUrl = (file) => `/preview/${encodeURIComponent(file.id)}?size=${PREVIEW_SIZE}&v=${encodeURIComponent(file.version || file.modifiedTime || file.createdTime || "")}`;
 const dateOf = (f) => {const d = Date.parse(f.createdTime || f.modifiedTime || ""); return Number.isNaN(d) ? 0 : d;};
 const dateText = (f) => dateOf(f) ? new Intl.DateTimeFormat("vi-VN", {day: "2-digit", month: "2-digit", year: "numeric"}).format(dateOf(f)) : "Kỷ niệm của bạn";
+let originals = null, viewerOriginal = null, viewerRequest = 0;
+let sessionTimer = null;
+const lockChannel = typeof BroadcastChannel === "function" ? new BroadcastChannel("vault-lock") : null;
+lockChannel?.addEventListener("message", (event) => {if (event.data === "locked" && state.csrf) lockScreen(false);});
+const originalBadges = new Map();
+
+function releaseViewerOriginal() {
+  ++viewerRequest; viewerOriginal?.release(); viewerOriginal = null;
+}
+function renderOriginalStatus(status) {
+  const {total, ready, bytes, limit, mode, paused, holds, initialising, errors, blocked, current} = status;
+  const complete = total > 0 && ready === total;
+  let title = "Đang chuẩn bị ảnh gốc", detail = "Tải lần lượt toàn thư viện · Ưu tiên ảnh trong mục bạn đang xem.";
+  if (initialising) {title = "Đang kiểm tra bản gốc đã tải"; detail = "Giữ lại tiến độ khi bạn tải lại trang trong cùng phiên mở khóa.";}
+  else if (!total) {title = "Thư viện chưa có ảnh để chuẩn bị"; detail = "Ảnh mới sẽ tự vào hàng đợi. Video được tải khi bạn mở xem.";}
+  else if (complete) {title = "Đã tải xong tất cả bản gốc"; detail = "Bạn có thể mở ảnh và zoom ngay · Chất lượng giữ nguyên từ Drive.";}
+  else if (paused) {title = "Đã tạm dừng tải trước"; detail = current ? "Ảnh đang tải sẽ được hoàn tất; các ảnh sau đang chờ." : "Các bản đã tải vẫn dùng được. Bấm Tiếp tục khi bạn muốn tải thêm.";}
+  else if (holds.includes("offline")) {title = "Đang chờ kết nối mạng"; detail = "Những bản gốc đã tải vẫn dùng được khi trang đang mở.";}
+  else if (holds.includes("upload")) {title = "Chờ lưu kỷ niệm mới"; detail = "Ảnh đang tải sẽ được hoàn tất; hàng đợi tiếp tục sau khi tải lên xong.";}
+  else if (!current && blocked) {title = "Đã đạt giới hạn lưu tạm"; detail = `Còn ${total - ready} ảnh chưa tải trước. Mở ảnh vẫn tải được bản gốc; bạn có thể tăng dung lượng trong phần cấu hình.`;}
+  else if (!current && errors) {title = "Một số bản gốc chưa tải được"; detail = "Bấm Thử lại ảnh lỗi khi kết nối đã ổn định.";}
+  if (errors && current) detail += ` · ${errors} ảnh cần thử lại.`;
+  if (blocked && current) detail += ` · ${blocked} ảnh vượt chỗ lưu còn lại.`;
+  $("original-title").textContent = title; $("original-detail").textContent = detail;
+  $("original-status").classList.toggle("complete", complete);
+  $("original-progress").max = Math.max(1, total); $("original-progress").value = ready;
+  $("original-count").textContent = `${ready} / ${total} ảnh gốc${errors ? ` · ${errors} lỗi` : ""}`;
+  $("original-pause").textContent = paused ? "Tiếp tục" : "Tạm dừng";
+  $("original-pause").setAttribute("aria-pressed", String(paused)); $("original-pause").disabled = initialising || !total || complete;
+  $("original-retry").hidden = !errors; $("original-retry").disabled = initialising;
+  $("original-storage").textContent = `${mode === "disk" ? "Lưu tạm trên trình duyệt" : "Lưu tạm trong bộ nhớ"} · ${formatSize(bytes)} / ${formatSize(limit)} · Xóa bản lưu tạm khi khóa thư viện.`;
+  $("original-current").hidden = !current;
+  if (current) {
+    $("original-current-name").textContent = `${current.urgent ? "Ưu tiên ảnh đang mở" : "Đang tải"} · ${current.file.name}`;
+    $("original-current-bytes").textContent = `${formatSize(current.loaded)}${current.total ? ` / ${formatSize(current.total)} · ${Math.min(100, Math.floor(current.loaded / current.total * 100))}%` : ""}`;
+    const progress = $("original-file-progress"); progress.max = current.total || 1;
+    if (current.total) progress.value = Math.min(current.loaded, current.total); else progress.removeAttribute("value");
+  }
+  for (const {file, badge} of originalBadges.values()) {
+    const loaded = originals?.isReady(file); badge.hidden = !loaded;
+    badge.textContent = "Gốc đã tải"; badge.title = "Bản gốc đã tải trước trên trình duyệt này";
+  }
+}
+$("original-pause").addEventListener("click", () => originals?.pause(!originals.paused));
+$("original-retry").addEventListener("click", () => {originals?.retry(); if (originals?.paused) originals.pause(false);});
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -105,7 +151,11 @@ function syncSidebar() {
 }
 function closeSidebar() {$("sidebar").classList.remove("open"); syncSidebar();}
 mobileMenu.addEventListener("change", closeSidebar);
-function lockScreen() {
+function lockScreen(broadcast = true) {
+  clearTimeout(sessionTimer); sessionTimer = null;
+  if (broadcast) lockChannel?.postMessage("locked");
+  releaseViewerOriginal();
+  if (originals) {const previous = originals; originals = null; previous.stop().catch(() => {});}
   if (state.xhr) state.xhr.abort();
   state.stopping = true;
   state.csrf = ""; state.files = []; state.selected.clear(); state.selecting = false;
@@ -123,6 +173,8 @@ function lockScreen() {
 }
 async function unlock(data) {
   state.csrf = data.csrf; state.maxMB = data.max_upload_mb;
+  clearTimeout(sessionTimer);
+  if (data.session_expires_at) sessionTimer = setTimeout(lockScreen, Math.max(0, data.session_expires_at * 1000 - Date.now()));
   $("login-screen").hidden = true; $("app-screen").hidden = false;
   $("demo-banner").hidden = !data.demo;
   $("storage-label").textContent = data.demo ? "XEM THỬ · LƯU TẠM" : "GOOGLE DRIVE";
@@ -130,6 +182,15 @@ async function unlock(data) {
   $("upload-limit").textContent = `Tối đa ${state.maxMB} MB / tệp`;
   $("password").value = "";
   window.scrollTo({top: 0, behavior: "auto"});
+  const cache = new window.VaultOriginals.BrowserOriginalCache({
+    budgetMB: numberSetting(settings.originalCacheMB, 512, 16, 4096),
+    memoryMB: numberSetting(settings.originalMemoryMB, 64, 16, 256)
+  });
+  originals = new window.VaultOriginals.OriginalLoader({cache, enabled: settings.preloadOriginals !== false,
+    onChange: renderOriginalStatus, onUnauthorized: lockScreen});
+  originals.hold("offline", !navigator.onLine);
+  await originals.initialise(data.cache_scope);
+  if (!state.csrf) return;
   await loadFiles();
 }
 $("login-form").addEventListener("submit", async (event) => {
@@ -237,6 +298,7 @@ function makeCard(file) {
   const heart = iconButton("heart", favorite(file) ? "Bỏ yêu thích" : "Thêm vào yêu thích", () => setFavorite(file.id), `card-favorite ${favorite(file) ? "is-favorite" : ""}`);
   heart.setAttribute("aria-pressed", String(favorite(file))); media.append(heart);
   if (video(file)) media.append(el("span", "video-badge", "VIDEO"));
+  if (photo(file)) {const badge = el("span", "original-badge"); badge.hidden = true; media.append(badge); originalBadges.set(file.id, {file, badge});}
   if (state.selecting) {
     const check = el("input", "card-select"); check.type = "checkbox"; check.checked = state.selected.has(file.id);
     check.setAttribute("aria-label", `Chọn ${file.name}`); check.disabled = state.busy;
@@ -257,6 +319,7 @@ function render() {
   $("library-title").replaceChildren(document.createTextNode(title + " "));
   $("library-title").append(el("span", "", state.filtered.length));
   $("gallery").classList.toggle("masonry", state.view === "masonry");
+  originalBadges.clear();
   $("gallery").replaceChildren(...state.filtered.slice(0, state.limit).map(makeCard));
   $("more-wrap").hidden = state.filtered.length <= state.limit;
   $("empty-state").hidden = !!state.filtered.length || !$("error-banner").hidden;
@@ -265,6 +328,7 @@ function render() {
   $("empty-description").textContent = narrowed ? "Thử một từ khóa khác hoặc bỏ bộ lọc." : "Thêm hình ảnh hoặc video đầu tiên vào thư viện.";
   $("empty-action").textContent = narrowed ? "Bỏ bộ lọc" : "Thêm kỷ niệm";
   renderSelection();
+  originals?.sync(state.files, state.filtered);
 }
 function toggleSelection(id) {
   if (state.busy) return;
@@ -463,7 +527,7 @@ function endPointer(event) {
   if (!zoom.pointers.size) zoomCanvas.classList.remove("dragging");
 }
 for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) zoomCanvas.addEventListener(name, endPointer);
-$("viewer").addEventListener("close", () => {$("viewer-media").querySelector("video")?.pause(); clearZoom(); $("viewer-media").replaceChildren();});
+$("viewer").addEventListener("close", () => {releaseViewerOriginal(); $("viewer-media").querySelector("video")?.pause(); clearZoom(); $("viewer-media").replaceChildren();});
 function openViewer(id) {
   state.viewerIds = state.filtered.map((f) => f.id); state.viewerIndex = state.viewerIds.indexOf(id);
   toggleInfo(settings.defaultInfoOpen === true);
@@ -473,6 +537,8 @@ function renderViewer() {
   const file = state.files.find((f) => f.id === state.viewerIds[state.viewerIndex]);
   if (!file) {$("viewer").close(); return;}
   const url = mediaUrl(file.id);
+  releaseViewerOriginal();
+  const request = viewerRequest;
   clearZoom();
   $("viewer-media").querySelector("video")?.pause(); $("viewer-media").replaceChildren();
   let media;
@@ -495,7 +561,7 @@ function renderViewer() {
       zoomButtons.forEach((id) => {$(id).disabled = false;}); measureZoom(); renderInfo(file, media);
     });
   }
-  media.src = url;
+  if (video(file)) media.src = url;
   media.addEventListener("error", () => {
     if (!zoomCanvas.contains(media)) return;
     clearZoom();
@@ -506,6 +572,20 @@ function renderViewer() {
     $("viewer-media").replaceChildren(fallback);
   });
   $("viewer-media").append(media);
+  if (!video(file)) {
+    if (originals?.isReady(file)) $("viewer-help").textContent = "Đang mở bản gốc đã tải trước…";
+    // Oversized originals use the native image loader without buffering another
+    // huge blob, so the cache budget does not restrict what can be viewed.
+    if (!originals || Number(file.size) > originals.cache.limit) media.src = url;
+    else originals.acquire(file).then((handle) => {
+      if (request !== viewerRequest || !zoomCanvas.contains(media)) {handle.release(); return;}
+      viewerOriginal = handle; media.src = handle.url;
+    }).catch((error) => {
+      if (request !== viewerRequest || !zoomCanvas.contains(media) || error.name === "AbortError") return;
+      // Viewing still works if browser storage or the background transfer failed.
+      media.src = url;
+    });
+  }
   renderInfo(file, media);
   $("viewer-name").textContent = file.name;
   $("viewer-meta").textContent = `${albumOf(file)} · ${dateText(file)} · ${formatSize(file.size)}`;
@@ -668,6 +748,7 @@ $("start-upload").addEventListener("click", async () => {
   const album = $("upload-album").value.trim() || "Chưa phân loại";
   if (new TextEncoder().encode(album).length > 110) {toast("Tên album vượt 110 byte UTF-8. Hãy đặt tên ngắn hơn.", true); return;}
   state.uploading = true; state.stopping = false; renderQueue(); $("upload-progress").hidden = false;
+  originals?.hold("upload", true);
   const queue = [...state.queue]; let succeeded = 0, failed = 0;
   for (let n = 0; n < queue.length; n++) {
     if (state.stopping) break;
@@ -677,6 +758,7 @@ $("start-upload").addEventListener("click", async () => {
     catch (error) {q.error = error.message; failed++; renderQueue(); if ([0, 401, 403, 429, 503].includes(error.status)) state.stopping = true;}
   }
   state.uploading = false; state.xhr = null; renderQueue(); render();
+  originals?.hold("upload", false);
   $("upload-status").textContent = `Đã lưu ${succeeded}/${queue.length} tệp${state.stopping ? " · Đã dừng" : ""}`;
   if (succeeded) toast(`Đã thêm ${succeeded} kỷ niệm vào “${album}”.`);
   if (failed) toast("Một số tệp chưa được xác nhận lưu. Xem thông báo trong hàng đợi và kiểm tra thư viện trước khi thử lại.", true);
@@ -686,6 +768,8 @@ $("cancel-upload").addEventListener("click", () => {state.stopping = true; state
 function updateConnection() {
   $("connection").classList.toggle("offline", !navigator.onLine);
   $("connection").querySelector("span").textContent = navigator.onLine ? "Đã mở khóa" : "Mất kết nối";
+  originals?.hold("offline", !navigator.onLine);
+  if (navigator.onLine) originals?.retry();
 }
 window.addEventListener("online", updateConnection); window.addEventListener("offline", updateConnection);
 (async function init() {
