@@ -7,8 +7,9 @@
   <meta name="description" content="Kho ảnh và video riêng tư của Taylor. Lưu giữ những điều đáng nhớ.">
   <title>Taylor's Vault · Kho kỷ niệm riêng tư</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-  <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/app.js" defer></script>
+  <link rel="stylesheet" href="/static/style.css?v=20261001-viewer-fix">
+  <script src="/static/settings.js?v=20261001-viewer-fix" defer></script>
+  <script src="/static/app.js?v=20261001-viewer-fix" defer></script>
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -20,6 +21,9 @@
     <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 8V6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
@@ -75,7 +79,28 @@
 
   <dialog id="upload-dialog" class="modal upload-modal"><div class="modal-heading"><div><span class="eyebrow">THÊM VÀO CÂU CHUYỆN CỦA BẠN</span><h2>Những kỷ niệm mới.</h2></div><button class="icon-button" data-close="upload-dialog" aria-label="Đóng cửa sổ tải lên"><svg><use href="#i-close"/></svg></button></div><label for="upload-album">Lưu vào album</label><input id="upload-album" list="album-options" maxlength="110" placeholder="Ví dụ: Đà Lạt, tháng 9"><datalist id="album-options"></datalist><div id="drop-zone" class="drop-zone"><span class="upload-symbol"><svg><use href="#i-upload"/></svg></span><h3>Thả một chút kỷ niệm vào đây.</h3><p>Ảnh hoặc video · <span id="upload-limit">Tối đa 100 MB / tệp</span></p><div><button id="choose-files" class="button primary">Chọn tệp</button><button id="choose-folder" class="button subtle"><svg><use href="#i-folder"/></svg> Chọn thư mục</button></div></div><input id="file-input" type="file" multiple accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/heic,image/heif,image/bmp,image/tiff,video/mp4,video/quicktime,video/webm,video/ogg" hidden><input id="folder-input" type="file" webkitdirectory multiple hidden><div id="upload-queue" class="upload-queue"></div><div id="upload-progress" class="upload-progress" hidden><div><span id="upload-status">Đang tải…</span><span id="upload-percent">0%</span></div><progress id="progress" max="100" value="0"></progress><small>Thanh tiến độ là bước gửi tệp đến máy chủ. Tệp chỉ được lưu xong khi Google Drive xác nhận.</small></div><p id="queue-summary" class="muted">Chưa chọn tệp nào.</p><div class="modal-footer"><button id="clear-queue" class="button subtle">Bỏ chọn tất cả</button><button id="cancel-upload" class="button subtle" hidden>Dừng tải</button><button id="start-upload" class="button primary" disabled><svg><use href="#i-upload"/></svg> Lưu vào thư viện</button></div></dialog>
 
-  <dialog id="viewer" class="viewer"><div class="viewer-top"><span id="viewer-position"></span><div><button id="viewer-favorite" class="icon-button" aria-label="Đổi trạng thái yêu thích"><svg><use href="#i-heart"/></svg></button><a id="viewer-download" class="icon-button" aria-label="Tải tệp về máy" download><svg><use href="#i-download"/></svg></a><button class="icon-button" data-close="viewer" aria-label="Đóng ảnh"><svg><use href="#i-close"/></svg></button></div></div><div class="viewer-stage"><button id="viewer-prev" class="viewer-arrow" aria-label="Ảnh trước">‹</button><div id="viewer-media"></div><button id="viewer-next" class="viewer-arrow" aria-label="Ảnh tiếp">›</button></div><div class="viewer-caption"><h3 id="viewer-name"></h3><span id="viewer-meta"></span><small>Dùng phím ← → để chuyển · Esc để đóng</small></div></dialog>
+  <dialog id="viewer" class="viewer">
+    <div class="viewer-top"><span id="viewer-position"></span><div>
+      <button id="viewer-info-toggle" class="icon-button" aria-label="Hiện thông tin tệp" aria-controls="viewer-info" aria-expanded="false" title="Thông tin (I)"><svg><use href="#i-info"/></svg></button>
+      <button id="viewer-favorite" class="icon-button" aria-label="Đổi trạng thái yêu thích"><svg><use href="#i-heart"/></svg></button>
+      <a id="viewer-download" class="icon-button" aria-label="Tải tệp về máy" download><svg><use href="#i-download"/></svg></a>
+      <button class="icon-button" data-close="viewer" aria-label="Đóng ảnh"><svg><use href="#i-close"/></svg></button>
+    </div></div>
+    <div id="viewer-zoom" class="viewer-zoom" role="group" aria-label="Phóng to và thu nhỏ ảnh" hidden>
+      <button id="zoom-out" class="icon-button" aria-label="Thu nhỏ ảnh" title="Thu nhỏ (-)" disabled><svg><use href="#i-minus"/></svg></button>
+      <output id="zoom-level" aria-label="Mức phóng ảnh">—</output>
+      <button id="zoom-in" class="icon-button" aria-label="Phóng to ảnh" title="Phóng to (+)" disabled><svg><use href="#i-plus"/></svg></button>
+      <span class="zoom-divider"></span>
+      <button id="zoom-original" class="zoom-text-button" aria-label="Xem kích thước gốc một pixel ảnh bằng một pixel màn hình" title="Kích thước gốc (1)" disabled>1:1</button>
+      <button id="zoom-fit" class="zoom-text-button" aria-label="Đưa ảnh vừa khung" title="Vừa khung (0)" disabled><svg><use href="#i-fit"/></svg>Vừa khung</button>
+    </div>
+    <div class="viewer-stage"><button id="viewer-prev" class="viewer-arrow" aria-label="Ảnh trước">‹</button><div id="viewer-media"></div><button id="viewer-next" class="viewer-arrow" aria-label="Ảnh tiếp">›</button></div>
+    <aside id="viewer-info" class="viewer-info-panel" aria-label="Thông tin tệp" hidden>
+      <div class="info-heading"><h2>Thông tin</h2><button id="viewer-info-close" class="icon-button" aria-label="Đóng thông tin"><svg><use href="#i-close"/></svg></button></div>
+      <dl id="viewer-info-values"></dl><p id="viewer-info-note" class="info-note" hidden></p>
+    </aside>
+    <div class="viewer-caption"><h3 id="viewer-name"></h3><span id="viewer-meta"></span><small id="viewer-help">Dùng phím ← → để chuyển · Esc để đóng</small></div>
+  </dialog>
 
   <dialog id="edit-dialog" class="modal compact-modal"><form id="edit-form"><div class="modal-heading"><h2>Sắp xếp kỷ niệm.</h2><button type="button" class="icon-button" data-close="edit-dialog" aria-label="Đóng chỉnh sửa"><svg><use href="#i-close"/></svg></button></div><label for="edit-name">Tên tệp</label><input id="edit-name" required maxlength="240"><label for="edit-album">Album</label><input id="edit-album" list="album-options" required maxlength="110"><p id="edit-error" class="field-error" role="alert" hidden></p><div class="modal-footer"><button type="button" class="button subtle" data-close="edit-dialog">Để sau</button><button class="button primary" type="submit">Lưu thay đổi</button></div></form></dialog>
   <dialog id="move-dialog" class="modal compact-modal"><form id="move-form"><div class="modal-heading"><h2>Chuyển vào album.</h2><button type="button" class="icon-button" data-close="move-dialog" aria-label="Đóng chuyển album"><svg><use href="#i-close"/></svg></button></div><p id="move-count" class="muted"></p><label for="move-album">Album mới hoặc đã có</label><input id="move-album" list="album-options" required maxlength="110" placeholder="Nhập tên album"><div class="modal-footer"><button type="button" class="button subtle" data-close="move-dialog">Để sau</button><button class="button primary" type="submit">Chuyển album</button></div></form></dialog>

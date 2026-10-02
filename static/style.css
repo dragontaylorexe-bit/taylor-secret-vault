@@ -30,6 +30,10 @@
 #viewer-media.image-mode.can-pan{cursor:grab}
 #viewer-media.image-mode.dragging{cursor:grabbing}
 #viewer-media.image-mode img.viewer-loading-preview{position:static;width:auto;height:auto;max-width:100%;max-height:100%;opacity:.55;pointer-events:none}
+.update-notice{max-width:540px;margin:15vh auto;padding:30px;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text)}
+.update-notice h1{font-size:24px;line-height:1.4;margin-bottom:16px}
+.update-notice p{font-size:14px;line-height:1.8;color:var(--soft);margin-bottom:24px}
+@media(max-width:600px){.update-notice{margin:12vh 20px;padding:24px}}
 .album-nav{flex-shrink:0}
 .welcome h1,.login-story h1,.login-form h2,.library-heading h2,.modal-heading h2,.empty-state h3{font-family:Cambria,"Times New Roman",serif;letter-spacing:-.5px}
 @media(max-width:700px){body.menu-open{overflow:hidden}}

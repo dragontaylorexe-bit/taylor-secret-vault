@@ -1,5 +1,27 @@
 "use strict";
 
+(() => {
+// A partial deploy must report the mismatch before registering half the controls.
+const requiredViewerIds = ["viewer", "viewer-media", "viewer-info", "viewer-info-toggle", "viewer-info-close",
+  "viewer-info-values", "viewer-info-note", "viewer-help", "viewer-zoom", "zoom-in", "zoom-out",
+  "zoom-original", "zoom-fit", "zoom-level"];
+const missingIds = requiredViewerIds.filter((id) => !document.getElementById(id));
+if (missingIds.length) {
+  console.error("Vault update incomplete. Missing elements:", missingIds.join(", "));
+  for (const id of ["login-screen", "app-screen"]) {
+    const screen = document.getElementById(id); if (screen) screen.hidden = true;
+  }
+  const notice = document.createElement("section"); notice.className = "update-notice";
+  notice.setAttribute("role", "alert");
+  const heading = document.createElement("h1"); heading.textContent = "Bản cập nhật chưa hoàn tất";
+  const message = document.createElement("p");
+  message.textContent = "Các phần của website đang khác phiên bản. Hãy tải lại trang. Nếu thông báo vẫn hiện, người quản lý cần cập nhật đầy đủ bộ mã nguồn mới và triển khai lại.";
+  const button = document.createElement("button"); button.type = "button"; button.className = "button primary";
+  button.textContent = "Tải lại trang"; button.addEventListener("click", () => location.reload());
+  notice.append(heading, message, button); document.body.prepend(notice);
+  return;
+}
+
 const $ = (id) => document.getElementById(id);
 const settings = window.VAULT_SETTINGS || {};
 const numberSetting = (value, fallback, min, max) => Number.isFinite(Number(value)) ? Math.min(max, Math.max(min, Number(value))) : fallback;
@@ -691,4 +713,5 @@ window.addEventListener("online", updateConnection); window.addEventListener("of
   updateConnection(); syncSidebar();
   try {await unlock(await api("/auth/session"));}
   catch (error) {if (error.status !== 401) {$("login-error").hidden = false; $("login-error").textContent = error.message;}}
+})();
 })();

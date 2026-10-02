@@ -1,0 +1,324 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hướng dẫn Taylor’s Vault · GitHub &amp; Render</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f6fb;color:#2d2437;font:15px/1.85 "Segoe UI",Arial,sans-serif}aside{position:fixed;inset:0 auto 0 0;width:255px;padding:32px 22px;background:#17131f;color:#cfc6dc;overflow:auto}aside strong{display:block;color:#c1a2f1;font-size:21px;margin-bottom:8px}aside small{font-size:11px;color:#9788a9}.toc ul{list-style:none;padding:0;margin-top:32px}.toc li{margin:14px 0;font-size:12px;line-height:1.6}.toc a{color:#cfc6dc;text-decoration:none}.toc a:hover{color:white}main{max-width:1100px;margin-left:255px;padding:48px 55px 80px}h1{font:400 36px/1.3 Cambria,Georgia,serif;color:#271c35;margin:10px 0 20px}h2{font-size:24px;line-height:1.4;margin:55px 0 16px;border-top:1px solid #e2d9ec;padding-top:25px;scroll-margin-top:25px}h3{font-size:18px;margin:30px 0 12px;color:#614681}a{color:#8155b4}p{margin:14px 0}li{margin:8px 0}code{font-family:Consolas,monospace;font-size:13px;background:#ece5f4;color:#563d75;padding:2px 4px;border-radius:4px}pre{background:#211a2c;color:#e8dfef;padding:18px 22px;border-radius:11px;overflow:auto;font-size:13px;line-height:1.7}pre code{background:none;color:inherit;padding:0;white-space:pre}table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow:auto;margin:24px 0}th{background:#ece5f4;text-align:left;color:#5b427b}th,td{padding:12px 15px;border:1px solid #ded3e9}td:first-child{min-width:170px}blockquote{padding:8px 20px;border-left:3px solid #a480cf;background:#f0eaf6}.doc-label{font-size:11px;color:#9774ba;letter-spacing:2px}.footer{border-top:1px solid #ddd2e8;margin-top:45px;padding-top:20px;font-size:12px;color:#82728f}@media(max-width:850px){aside{position:relative;width:auto;max-height:none;padding:24px}.toc ul{margin-top:15px}.toc li{margin:8px 0}main{margin:0;padding:30px 24px}h1{font-size:29px}h2{font-size:22px}}@media print{aside{display:none}main{margin:0;padding:0;max-width:none}body{background:white;font-size:11px}h1{font-size:25px}h2{font-size:18px;margin-top:20px;break-after:avoid}pre{white-space:pre-wrap;background:#f3eef8;color:#241b2e;border:1px solid #d6c9e4}pre code{white-space:pre-wrap}table{font-size:10px}a{color:#563d75}}</style></head><body><aside><strong>Taylor’s Vault</strong><small>HƯỚNG DẪN CHI TIẾT · 01/10/2026</small><div class="toc">
+<ul>
+<li><a href="#1-ban-nay-sua-loi-gi">1. Bản này sửa lỗi gì?</a></li>
+<li><a href="#2-nhung-gi-co-trong-zip">2. Những gì có trong ZIP</a></li>
+<li><a href="#3-chay-thu-giao-dien-tren-windows">3. Chạy thử giao diện trên Windows</a></li>
+<li><a href="#4-ket-noi-lai-google-drive-cua-ban">4. Kết nối lại Google Drive của bạn</a></li>
+<li><a href="#5-ua-ma-moi-len-github">5. Đưa mã mới lên GitHub</a></li>
+<li><a href="#6-deploy-hoac-cap-nhat-tren-render">6. Deploy hoặc cập nhật trên Render</a></li>
+<li><a href="#7-su-dung-nhung-tinh-nang-moi">7. Sử dụng những tính năng mới</a></li>
+<li><a href="#8-khi-co-loi-kiem-tra-theo-bang-nay">8. Khi có lỗi, kiểm tra theo bảng này</a></li>
+<li><a href="#9-luu-y-ve-du-lieu-va-ban-sao">9. Lưu ý về dữ liệu và bản sao</a></li>
+<li><a href="#10-toc-o-tai-va-o-net-cua-anh">10. Tốc độ tải và độ nét của ảnh</a></li>
+</ul>
+</div>
+</aside><main><span class="doc-label">MÃ NGUỒN · GOOGLE DRIVE · GITHUB · RENDER</span><h1 id="huong-dan-dung-taylors-vault-va-deploy-len-render">Hướng dẫn dùng Taylor's Vault và deploy lên Render</h1>
+<p>Ngày cập nhật: <strong>01/10/2026</strong>.</p>
+<p><strong>Nếu bấm ảnh hoặc “Thêm kỷ niệm mới” không phản hồi:</strong> đọc <a href="SUA_LOI_MO_ANH.html">SUA_LOI_MO_ANH.html</a>. Website thật đã được kiểm tra và xác nhận HTML/JavaScript lệch phiên bản. Cần cập nhật đồng bộ file trong đúng Root Directory.</p>
+<h2 id="1-ban-nay-sua-loi-gi">1. Bản này sửa lỗi gì?</h2>
+<p>Trong mã nguồn bạn cung cấp có dòng:</p>
+<pre><code class="language-python">@app.get(&quot;/&quot;, methods=[&quot;GET&quot;, &quot;HEAD&quot;])
+</code></pre>
+<p>Mình đã tái hiện lỗi <code>TypeError: FastAPI.get() got an unexpected keyword argument 'methods'</code>. Dòng này làm ứng dụng lỗi ngay khi nạp <code>main.py</code>. Bản mới dùng:</p>
+<pre><code class="language-python">@app.api_route(&quot;/&quot;, methods=[&quot;GET&quot;, &quot;HEAD&quot;])
+</code></pre>
+<p>Giao diện cũ còn có <code>BACKEND_URL = "http://localhost:8000"</code>. Khi khách mở website trên Render, <code>localhost</code> chỉ máy của khách. Bản mới gọi <code>/files/</code>, <code>/upload/</code>… ngay trên cùng tên miền Render, nên không cần sửa URL hoặc bật CORS mở rộng.</p>
+<p>Ngoài ra, bản mới không mở cửa sổ đăng nhập Google trên máy chủ Render. Bạn tạo token trên máy cá nhân một lần rồi thêm vào phần Environment của Render.</p>
+<p><strong>Log Render bạn gửi ngày 01/10/2026 xác nhận build thành công nhưng Start Command sai.</strong> Render đang chạy cả dòng bảng Markdown có <code>| Start Command |</code> và dấu nháy ngược, nên báo <code>syntax error near unexpected token '|'</code> và thoát với status 2. Xóa toàn bộ nội dung ô đó rồi dán đúng dòng lệnh ở bước 6. Thông báo cập nhật pip trong log chỉ là thông báo, không phải nguyên nhân lỗi này. Cần deploy lại để xác nhận khởi động và kết nối Drive thật.</p>
+<h2 id="2-nhung-gi-co-trong-zip">2. Những gì có trong ZIP</h2>
+<pre><code class="language-text">gallery-updated/
+  main.py                Máy chủ và các chức năng thư viện
+  storage.py             Kết nối Google Drive / chế độ xem thử
+  previews.py            Ảnh xem trước và bộ nhớ đệm riêng
+  index.html             Giao diện chính
+  static/                CSS, JavaScript, biểu tượng, hình demo
+    settings.js          Tên website, chữ, mức zoom, bật/tắt info
+    tokens.css           Màu giao diện sáng và tối, dễ chỉnh
+  setup_drive.py         Tạo token Google trên máy cá nhân
+  requirements.txt       Thư viện cần cho website
+  requirements-dev.txt   Thư viện bổ sung để chạy kiểm thử
+  render.yaml            Cấu hình Render Blueprint
+  .python-version        Python 3.12
+  .gitignore             Bỏ qua token, mật khẩu, môi trường ảo
+  .env.example           Danh sách biến cấu hình; không có mật khẩu sẵn
+  tests/                 Các kiểm thử tự động
+  README.md
+  HUONG_DAN.md / HUONG_DAN.html
+  TU_CHINH_SUA.md / TU_CHINH_SUA.html
+  SUA_LOI_MO_ANH.md / SUA_LOI_MO_ANH.html
+  KET_QUA_KIEM_TRA.md
+</code></pre>
+<p>ZIP không chứa <code>.git</code>, <code>env</code>, <code>token.json</code>, <code>client_secret.json</code> hoặc thông tin đăng nhập từ thư mục gốc. Mã nguồn cũ ở <code>F:\tool\gallery</code> được giữ nguyên. Bạn vẫn dùng các tệp Google hiện có của mình theo bước 4.</p>
+<h2 id="3-chay-thu-giao-dien-tren-windows">3. Chạy thử giao diện trên Windows</h2>
+<ol>
+<li>Giải nén ZIP vào thư mục mới, ví dụ <code>F:\tool\gallery-updated</code>. Kiểm tra thư mục này có <code>main.py</code> trực tiếp, tránh lồng thêm một tầng <code>gallery-updated</code>.</li>
+<li>Cài Python 3.12 từ trang chính thức nếu chưa có. Mở PowerShell tại thư mục vừa giải nén. Nếu có nhiều bản Python, dùng <code>py -3.12</code> như bên dưới.</li>
+<li>Tạo môi trường riêng và cài thư viện. Không dùng lại thư mục <code>env</code> trong code cũ.</li>
+</ol>
+<pre><code class="language-powershell">Set-Location 'F:\tool\gallery-updated'
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+</code></pre>
+<p>Không cần kích hoạt môi trường, nên không cần thay chính sách chạy script của Windows. Nếu <code>py</code> không được nhận diện, dùng <code>python</code> thay <code>py -3.12</code> sau khi kiểm tra <code>python --version</code>.</p>
+<ol>
+<li>Nhập mật khẩu do bạn tự chọn, tối thiểu 12 ký tự, rồi chạy demo:</li>
+</ol>
+<pre><code class="language-powershell">$vaultPassword = Read-Host 'Nhap mat khau thu vien (it nhat 12 ky tu)' -AsSecureString
+$env:SECRET_PASSWORD = [System.Net.NetworkCredential]::new('', $vaultPassword).Password
+$env:DEMO_MODE = 'true'
+$env:COOKIE_SECURE = 'false'
+$env:MAX_UPLOAD_MB = '100'
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
+</code></pre>
+<ol>
+<li>Mở <strong>http://127.0.0.1:8000</strong> trong trình duyệt. Nhập đúng mật khẩu vừa chọn. Thử album, tìm kiếm, sáng/tối, tải ảnh/video mẫu, đổi tên và tải xuống.</li>
+<li>Dừng máy chủ bằng <code>Ctrl+C</code> trong PowerShell khi xong.</li>
+</ol>
+<p><strong>Demo chỉ để thử:</strong> các ảnh ban đầu là minh họa, mọi thay đổi chỉ lưu trong RAM và mất khi máy chủ khởi động lại. Kho demo giới hạn tổng cộng 50 MB. Khi dùng ảnh thật, chuyển <code>DEMO_MODE</code> sang <code>false</code> và kết nối Drive.</p>
+<p>File <code>.env.example</code> là tài liệu cấu hình. Website không tự đọc file <code>.env</code>; dùng biến PowerShell khi chạy tại máy và phần Environment khi chạy trên Render.</p>
+<h2 id="4-ket-noi-lai-google-drive-cua-ban">4. Kết nối lại Google Drive của bạn</h2>
+<h3 id="cach-a-dung-token-hien-co-nen-thu-au-tien">Cách A — dùng token hiện có (nên thử đầu tiên)</h3>
+<p>Thư mục cũ <code>F:\tool\gallery</code> đã có <code>token.json</code> và <code>client_secret.json</code>. Giữ chúng riêng trên máy cá nhân.</p>
+<ul>
+<li>Mở <code>F:\tool\gallery\token.json</code> bằng trình soạn thảo và kiểm tra có <code>refresh_token</code>, <code>client_id</code>, <code>client_secret</code>.</li>
+<li>Sao chép <strong>toàn bộ nội dung JSON</strong>, từ dấu <code>{</code> đầu tiên đến dấu <code>}</code> cuối cùng, vào giá trị <code>DRIVE_TOKEN_JSON</code> trên Render. Không dán tên đường dẫn hoặc bọc thêm một lớp dấu nháy.</li>
+<li>Với chạy cục bộ, sau khi dừng demo, dùng:</li>
+</ul>
+<pre><code class="language-powershell">$env:DEMO_MODE = 'false'
+$env:DRIVE_TOKEN_JSON = Get-Content -LiteralPath 'F:\tool\gallery\token.json' -Raw
+$env:COOKIE_SECURE = 'false'
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
+</code></pre>
+<p>Nếu PowerShell vừa được mở mới, nhập lại biến <code>SECRET_PASSWORD</code> như bước 3. Biến PowerShell chỉ áp dụng cho cửa sổ đó. Một cách khác là tự sao chép <code>token.json</code> vào thư mục mới để máy chủ đọc khi không có <code>DRIVE_TOKEN_JSON</code>; tệp này đã được <code>.gitignore</code> bỏ qua.</p>
+<p><strong>Muốn thấy ảnh cũ, cần đúng tài khoản Google và đúng ứng dụng OAuth đã tạo kho cũ.</strong> <code>appDataFolder</code> là kho ẩn riêng của từng ứng dụng, không hiện trong “My Drive”. Thay OAuth client có thể làm danh sách trống dù dữ liệu cũ vẫn còn. Bản cập nhật tiếp tục dùng kho này và giữ thuộc tính album cũ. <a href="https://developers.google.com/workspace/drive/api/guides/appdata">Giải thích chính thức của Google</a>.</p>
+<h3 id="cach-b-tao-lai-token-neu-token-cu-het-han">Cách B — tạo lại token nếu token cũ hết hạn</h3>
+<ol>
+<li>Mở <a href="https://console.cloud.google.com/">Google Cloud Console</a> và chọn đúng project đã dùng cho website cũ.</li>
+<li>Trong <strong>APIs &amp; Services → Library</strong>, kiểm tra <strong>Google Drive API</strong> đã được bật.</li>
+<li>Trong <strong>Google Auth Platform</strong>, kiểm tra thông tin ứng dụng, đối tượng dùng và danh sách test users nếu ứng dụng đang ở chế độ Testing. Tài khoản bạn đăng nhập phải được cho phép.</li>
+<li>Trong phần <strong>Clients</strong>, dùng lại OAuth client loại <strong>Desktop app</strong> của ứng dụng cũ. Tải JSON của client này và giữ riêng trên máy. Đổi tên bản tải thành <code>client_secret.json</code> trong thư mục code mới nếu muốn dùng lệnh mặc định.</li>
+<li>Nếu tệp cũ vốn là Desktop app, có thể dùng trực tiếp mà không cần tải lại:</li>
+</ol>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe setup_drive.py --client 'F:\tool\gallery\client_secret.json'
+</code></pre>
+<ol>
+<li>Trình duyệt sẽ mở luồng Google. <strong>Bạn tự đăng nhập</strong>, chọn đúng tài khoản và chấp thuận quyền lưu dữ liệu ứng dụng. Công cụ mới chỉ yêu cầu <code>drive.appdata</code>.</li>
+<li>Sau khi hoàn tất, <code>token.json</code> mới được tạo trong thư mục code mới. Nếu tệp đã có, công cụ hỏi trước khi ghi đè. Mở token và cập nhật toàn bộ JSON vào <code>DRIVE_TOKEN_JSON</code> trên Render; không cần commit token.</li>
+</ol>
+<p>Công cụ này chạy trên máy cá nhân, không chạy trong Build Command hoặc Start Command của Render. Nó hỗ trợ Desktop app; nếu JSON là Web application, công cụ sẽ báo rõ. <strong>Trước khi đổi loại client, hãy bảo toàn và xác định cách truy cập kho cũ; một client mới có thể mở một kho riêng khác.</strong> Xem <a href="https://developers.google.com/workspace/drive/api/quickstart/python">Google Drive Python quickstart</a> cho quy trình OAuth chính thức.</p>
+<p>Ứng dụng OAuth external còn ở <strong>Testing</strong> thường được cấp refresh token hết hạn sau 7 ngày đối với quyền Drive. Khi sử dụng lâu dài, xem điều kiện chuyển trạng thái Production trong Google Console; token vẫn có thể bị thu hồi sau đó. <a href="https://developers.google.com/identity/protocols/oauth2#expiration">Google — Refresh token expiration</a>.</p>
+<h2 id="5-ua-ma-moi-len-github">5. Đưa mã mới lên GitHub</h2>
+<h3 id="neu-cap-nhat-repository-ang-ket-noi-render">Nếu cập nhật repository đang kết nối Render</h3>
+<ol>
+<li>Giữ một bản sao thư mục cũ trước khi thay mã.</li>
+<li>Mở repository của bạn trên GitHub. Ghi nhớ branch Render đang dùng, thường là <code>main</code>.</li>
+<li>Thay <code>main.py</code>, <code>index.html</code>, <code>requirements.txt</code>, <code>.python-version</code>, <code>.gitignore</code>; thêm <code>storage.py</code>, <code>setup_drive.py</code>, <code>render.yaml</code>, tài liệu và toàn bộ thư mục <code>static</code>. Các tệp phải nằm trong cùng thư mục gốc dịch vụ.</li>
+<li>Commit trên branch đó. Không chỉ upload file ZIP: Render cần mã nguồn đã giải nén.</li>
+<li>Kiểm tra GitHub có cấu trúc giống bước 2, đặc biệt là <code>static/settings.js</code>, <code>static/app.js</code>, <code>static/style.css</code>, <code>static/tokens.css</code>, <code>static/demo/...</code>.</li>
+</ol>
+<p>Trên giao diện GitHub, có thể dùng <strong>Add file → Upload files</strong>, kéo các tệp và thư mục <code>static</code> từ thư mục vừa giải nén rồi commit. Đảm bảo các file bắt đầu bằng dấu chấm cũng được cập nhật; nếu thao tác trình duyệt bỏ sót, dùng GitHub Desktop hoặc Git.</p>
+<p><strong>Chỉ đưa mã nguồn lên GitHub.</strong> Không upload <code>token.json</code>, <code>client_secret.json</code>, <code>.env</code> hoặc <code>.venv</code>. Nếu bí mật đã nằm trong Git lịch sử, <code>.gitignore</code> không xóa được bí mật cũ; hãy thu hồi/cấp lại token bị lộ và làm sạch lịch sử khi cần.</p>
+<h3 id="neu-tao-repository-moi">Nếu tạo repository mới</h3>
+<p>Tạo repository, ưu tiên <strong>Private</strong> cho dự án cá nhân. Upload mã nguồn đã giải nén vào thư mục gốc, hoặc dùng GitHub Desktop để chọn thư mục <code>gallery-updated</code>, kiểm tra danh sách Changes rồi publish. Mọi người có mật khẩu website vẫn dùng chung một kho; tính private của repository không thay việc bảo vệ website.</p>
+<h2 id="6-deploy-hoac-cap-nhat-tren-render">6. Deploy hoặc cập nhật trên Render</h2>
+<p>Website có API Python, nên chọn <strong>Web Service</strong>, không chọn Static Site.</p>
+<h3 id="cap-nhat-dich-vu-render-ang-co">Cập nhật dịch vụ Render đang có</h3>
+<ol>
+<li>Mở dịch vụ trong <a href="https://dashboard.render.com/">Render Dashboard</a>.</li>
+<li>Vào <strong>Settings</strong>, kiểm tra repository, branch và Root Directory khớp với nơi chứa <code>main.py</code>.</li>
+<li>Nếu <code>main.py</code> nằm ngay gốc repo, để Root Directory trống. Nếu code nằm trong <code>gallery-updated/</code> của repo, đặt Root Directory là <code>gallery-updated</code>.</li>
+<li>Đặt các mục dưới đây. Sau đó vào <strong>Environment</strong> để thêm biến trong bảng tiếp theo.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Mục</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service type</td>
+<td>Web Service</td>
+</tr>
+<tr>
+<td>Language / Runtime</td>
+<td>Python 3</td>
+</tr>
+<tr>
+<td>Health Check Path</td>
+<td><code>/healthz</code></td>
+</tr>
+<tr>
+<td>Instance</td>
+<td>Chọn Free nếu bạn muốn bắt đầu thử miễn phí; kiểm tra giới hạn trong Dashboard</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ô Build Command:</strong> chỉ sao chép nội dung trong khung sau.</p>
+<pre><code class="language-text">pip install -r requirements.txt
+</code></pre>
+<p><strong>Ô Start Command:</strong> xóa nội dung cũ, chỉ sao chép dòng bắt đầu bằng <code>uvicorn</code> trong khung sau. Không dán tên ô, dấu <code>|</code>, dấu nháy ngược hoặc cả hàng bảng.</p>
+<pre><code class="language-text">uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips '*'
+</code></pre>
+<p>Giữ nguyên dấu nháy đơn quanh <code>*</code>; đó là một phần hợp lệ của lệnh. Start Command dùng biến <code>$PORT</code> do Render cung cấp; đừng thay bằng cổng <code>8000</code> chỉ vì lúc chạy trên máy dùng cổng đó. Cấu hình bind và build theo <a href="https://render.com/docs/deploy-fastapi">Render — Deploy FastAPI</a>.</p>
+<p>Đổi <code>render.yaml</code> trong repository không tự sửa ô Start Command của dịch vụ được tạo thủ công. Với lỗi trong log vừa gửi, hãy sửa trực tiếp trong Settings của dịch vụ hiện có, lưu và chọn <strong>Manual Deploy → Deploy latest commit</strong> theo <a href="https://render.com/docs/deploys">Render — Deploys</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Biến môi trường</th>
+<th>Giá trị cần đặt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECRET_PASSWORD</code></td>
+<td>Mật khẩu riêng do bạn tự đặt, tối thiểu 12 ký tự; không dùng mật khẩu mẫu hoặc mật khẩu cũ mặc định</td>
+</tr>
+<tr>
+<td><code>DRIVE_TOKEN_JSON</code></td>
+<td>Toàn bộ nội dung token JSON của đúng kho Drive</td>
+</tr>
+<tr>
+<td><code>DEMO_MODE</code></td>
+<td><code>false</code> để lưu thật trên Drive</td>
+</tr>
+<tr>
+<td><code>COOKIE_SECURE</code></td>
+<td><code>true</code> vì Render dùng HTTPS</td>
+</tr>
+<tr>
+<td><code>MAX_UPLOAD_MB</code></td>
+<td><code>100</code> là mặc định; cho phép 1–500, nên giữ nhỏ khi dùng gói thử</td>
+</tr>
+</tbody>
+</table>
+<p>File <code>.python-version</code> đã chọn <code>3.12</code>. Nếu Environment có <code>PYTHON_VERSION</code> cũ không phù hợp, bỏ biến đó để dùng file, hoặc đặt một phiên bản 3.12.x cụ thể được Render hỗ trợ. Biến <code>PYTHON_VERSION</code> ưu tiên hơn <code>.python-version</code>. <a href="https://render.com/docs/python-version">Render — Python version</a>.</p>
+<ol>
+<li>Lưu cấu hình và chọn <strong>Manual Deploy → Deploy latest commit</strong>. Nếu trước đó lỗi thư viện hoặc bộ nhớ build cũ, dùng <strong>Clear build cache &amp; deploy</strong> nếu có.</li>
+<li>Mở <strong>Logs</strong>. Kết quả mong đợi là cài thư viện thành công, ứng dụng khởi động và Uvicorn lắng nghe cổng Render cung cấp.</li>
+<li>Khi trạng thái Live, mở URL <code>https://ten-dich-vu.onrender.com</code>. Nhập mật khẩu trong <code>SECRET_PASSWORD</code>.</li>
+<li>Kiểm tra danh sách kho cũ, tải một ảnh nhỏ, mở ảnh, tải bản gốc, tải một video ngắn và thử phát/tua. Refresh trình duyệt để xác nhận yêu thích và album vẫn được lưu.</li>
+</ol>
+<p><code>/healthz</code> trả <code>{"status":"ok"}</code> khi tiến trình hoạt động, kể cả khi Drive chưa được cấu hình. Kiểm tra kho sau đăng nhập mới xác nhận kết nối Drive thành công.</p>
+<h3 id="tao-dich-vu-moi">Tạo dịch vụ mới</h3>
+<p>Chọn <strong>New → Web Service</strong>, kết nối GitHub và chọn repo mới. Điền cấu hình như trên. Một cách khác là chọn <strong>Blueprint</strong>, chọn repo có <code>render.yaml</code> và nhập hai biến bí mật khi Render yêu cầu. Không cần tạo dịch vụ thứ hai nếu bạn chỉ muốn cập nhật dịch vụ hiện có. Cấu trúc Blueprint theo <a href="https://render.com/docs/blueprint-spec">Render — Blueprint YAML</a>.</p>
+<p>Render Free có thể ngủ sau 15 phút không có truy cập; lần mở tiếp theo cần chờ khởi động. Tệp trên ổ cục bộ của dịch vụ không bền qua restart/deploy, nên bản này lưu ảnh thật trên Drive. Phiên đăng nhập ở RAM sẽ hết hiệu lực sau restart. Xem <a href="https://render.com/docs/free">Render — Free services</a> để biết giới hạn băng thông và dịch vụ.</p>
+<h2 id="7-su-dung-nhung-tinh-nang-moi">7. Sử dụng những tính năng mới</h2>
+<ul>
+<li><strong>Thêm kỷ niệm:</strong> bấm nút tím, nhập album, chọn nhiều tệp hoặc thư mục. Có thể kéo thả tệp vào khung. Khi chọn thư mục bằng nút, tên thư mục được gợi ý làm tên album.</li>
+<li><strong>Tiến độ:</strong> mỗi tệp gửi lần lượt; đạt 100% vẫn có thể đang đợi Google Drive lưu. Chỉ thông báo “Đã lưu” mới xác nhận hoàn tất. Tệp thành công được bỏ khỏi hàng đợi; tệp lỗi được giữ lại với thông báo riêng.</li>
+<li><strong>Dừng tải:</strong> dừng việc chờ và không gửi thêm tệp. Tệp đang gửi có thể vẫn được máy chủ/Drive lưu. Tải lại thư viện trước khi thử lại để tránh tạo bản trùng.</li>
+<li><strong>Album:</strong> bấm tên bên trái hoặc các nút lọc. Album được tạo khi có tệp tải/chuyển vào; chưa hỗ trợ album rỗng, album con hoặc giữ cây thư mục.</li>
+<li><strong>Tìm kiếm:</strong> nhập tên tệp hoặc album, ví dụ <code>da lat</code> tìm được <code>Đà Lạt</code>. Phím <code>/</code> đưa con trỏ vào ô tìm kiếm.</li>
+<li><strong>Yêu thích:</strong> bấm trái tim trên ảnh hoặc trong cửa sổ xem; trạng thái được lưu trên Drive và dùng lại giữa các thiết bị.</li>
+<li><strong>Chọn nhiều:</strong> tích tệp, chuyển cùng album, thêm yêu thích hoặc xóa. “Chọn tất cả đang hiển thị” chỉ chọn các thẻ hiện có; bấm “Xem thêm” để hiện các tệp tiếp theo.</li>
+<li><strong>Đổi tên:</strong> bấm biểu tượng bút ở dưới thẻ. Giữ phần đuôi <code>.jpg</code>, <code>.png</code>, <code>.mp4</code>… để tiện mở sau khi tải về. Tên album tối đa 110 byte UTF-8; chữ có dấu chiếm nhiều byte hơn.</li>
+<li><strong>Xem:</strong> bấm ảnh/video. Phím <code>←</code> và <code>→</code> chuyển mục, <code>Esc</code> đóng. Video có thanh tua và nút phát của trình duyệt.</li>
+<li><strong>Zoom ảnh:</strong> dùng nút <code>+</code> / <code>−</code>, lăn chuột hoặc chụm hai ngón trên màn hình cảm ứng. Khi ảnh lớn hơn khung, kéo ảnh để xem vùng khác. Nhấp đúp để phóng / trở về vừa khung; nút <strong>1:1</strong> xem kích thước gốc, <strong>Vừa khung</strong> đưa ảnh trở lại. Phím <code>+</code>, <code>−</code>, <code>1</code> và <code>0</code> cũng có tác dụng tương ứng. Mức mặc định tối đa 800% kích thước gốc; zoom không làm tăng độ chi tiết của ảnh gốc.</li>
+<li><strong>Ảnh gốc nét:</strong> lưới dùng ảnh xem trước nhẹ. Khi bấm mở, website hiện bản nhẹ tạm trong lúc tải file gốc; dòng “Đang tải bản gốc” đổi thành “Bản gốc” và zoom bật khi xong. File gốc được trả nguyên dữ liệu từ Drive, không nén lại hay giảm độ phân giải.</li>
+<li><strong>Thông tin ảnh/video:</strong> bấm nút <strong>ⓘ</strong> góc trên của cửa sổ xem hoặc phím <code>I</code>. Bảng hiện tên, album, dung lượng, định dạng, kích thước, độ phân giải ảnh, ngày tải lên và thời lượng video. Khi Drive cung cấp EXIF, hiện thêm máy ảnh, ống kính, thời gian chụp, khẩu độ, tốc độ màn trập, ISO, tiêu cự, cân bằng trắng và không gian màu. Thiếu dữ liệu thì bỏ trống mục đó và báo rõ; không tự đoán. Ngày tải lên và thời gian chụp là hai thông tin khác nhau. Không lấy tọa độ GPS. Trên điện thoại, info phủ lên ảnh; bấm dấu × trong bảng để tiếp tục zoom.</li>
+<li><strong>Tự tùy chỉnh:</strong> mở <a href="TU_CHINH_SUA.html">TU_CHINH_SUA.html</a> hoặc <a href="TU_CHINH_SUA.md">TU_CHINH_SUA.md</a>. Tên website, nội dung và zoom nằm trong <code>static/settings.js</code>; màu nằm trong <code>static/tokens.css</code>.</li>
+<li><strong>Tải bản gốc:</strong> bấm biểu tượng mũi tên tải xuống trên thẻ hoặc trong cửa sổ xem.</li>
+<li><strong>Sáng/tối:</strong> bấm biểu tượng mặt trời phía trên. Lựa chọn giao diện và kiểu lưới được nhớ trên thiết bị, mật khẩu không được lưu.</li>
+<li><strong>Khóa thư viện:</strong> bấm mục ở cuối menu. Phiên kéo dài tối đa 12 giờ, cần mở khóa lại sau khi hết hạn hoặc dịch vụ khởi động lại.</li>
+</ul>
+<p>Định dạng nhận: JPEG, PNG, GIF, WebP, AVIF, HEIC/HEIF, BMP, TIFF; video MP4, MOV, WebM, Ogg. SVG/HTML không được nhận từ người dùng. HEIC/TIFF và codec video đặc biệt có thể không xem được trực tiếp: tải bản gốc, hoặc đổi sang JPEG/MP4 H.264 trước khi tải lên. Thumbnail video hiện là thẻ biểu tượng; chưa có tính năng tự trích ảnh bìa hoặc chuyển mã video.</p>
+<p>Kho chỉ dành cho một chủ sở hữu hoặc nhóm tin cậy dùng chung mật khẩu. Chưa có đăng ký, tài khoản riêng, vai trò quản trị, link chia sẻ công khai hay mã hóa đầu cuối.</p>
+<h2 id="8-khi-co-loi-kiem-tra-theo-bang-nay">8. Khi có lỗi, kiểm tra theo bảng này</h2>
+<table>
+<thead>
+<tr>
+<th>Hiện tượng</th>
+<th>Cách kiểm tra / xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unexpected keyword argument 'methods'</code></td>
+<td>Render vẫn chạy code cũ hoặc sai branch/Root Directory. Kiểm tra commit mới có <code>app.api_route</code>.</td>
+</tr>
+<tr>
+<td><code>Could not import module main</code></td>
+<td>Start Command phải dùng <code>main:app</code>; Root Directory phải chứa <code>main.py</code> và <code>storage.py</code>.</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError</code></td>
+<td>Build Command phải cài <code>requirements.txt</code>; kiểm tra log build, không upload <code>env</code> cũ.</td>
+</tr>
+<tr>
+<td>Không tìm thấy cổng / deploy timeout</td>
+<td>Kiểm tra <code>--host 0.0.0.0 --port $PORT</code>; tìm lỗi nạp ứng dụng xuất hiện trước dòng quét cổng.</td>
+</tr>
+<tr>
+<td>Trang trắng hoặc không có CSS</td>
+<td>Kiểm tra thư mục <code>static</code> đã lên repo, mở <code>/static/style.css</code>, tải lại bằng Ctrl+F5.</td>
+</tr>
+<tr>
+<td>Bấm ảnh hoặc thêm kỷ niệm không mở cửa sổ; lỗi <code>addEventListener</code> với <code>null</code></td>
+<td>HTML và JavaScript khác phiên bản. Đưa bộ file mới vào đúng Root Directory, đặc biệt thay <code>index.html</code>; xem <code>SUA_LOI_MO_ANH.html</code>.</td>
+</tr>
+<tr>
+<td><code>syntax error near unexpected token '|'</code>, <code>Exited with status 2</code></td>
+<td>Start Command có cả hàng bảng hướng dẫn. Xóa toàn bộ ô, dán đúng dòng <code>uvicorn ...</code> ở bước 6, lưu rồi deploy lại.</td>
+</tr>
+<tr>
+<td>Báo <code>SECRET_PASSWORD</code> chưa cấu hình</td>
+<td>Thêm biến trong Environment, ít nhất 12 ký tự, rồi redeploy.</td>
+</tr>
+<tr>
+<td>Không vào được dù mật khẩu đúng</td>
+<td>Kiểm tra khoảng trắng, đúng dịch vụ, cookie và HTTPS; giữ <code>COOKIE_SECURE=true</code> trên Render, <code>false</code> khi dùng HTTP localhost.</td>
+</tr>
+<tr>
+<td>Thử mật khẩu quá nhiều lần</td>
+<td>Chờ 15 phút, sau đó thử đúng mật khẩu. Không retry liên tục.</td>
+</tr>
+<tr>
+<td>Chưa kết nối Drive / JSON không hợp lệ</td>
+<td><code>DRIVE_TOKEN_JSON</code> phải là nội dung JSON, có refresh token; không phải tên file hoặc JSON client OAuth.</td>
+</tr>
+<tr>
+<td><code>invalid_grant</code> / quyền Drive hết hạn</td>
+<td>Chạy <code>setup_drive.py</code> trên máy cá nhân, cập nhật token. Kiểm tra chế độ Testing 7 ngày và việc thu hồi quyền.</td>
+</tr>
+<tr>
+<td>Google từ chối truy cập</td>
+<td>Kiểm tra API đã bật, scope <code>drive.appdata</code>, tài khoản và dung lượng Drive còn trống.</td>
+</tr>
+<tr>
+<td>Kho trống dù đã có ảnh</td>
+<td>Tắt demo, kiểm tra đúng tài khoản và đúng OAuth client tạo kho; kiểm tra bộ lọc/từ khóa. Đừng xóa ứng dụng Google hoặc cấp lại bằng client khác khi chưa xác định kho cũ.</td>
+</tr>
+<tr>
+<td>Video không phát</td>
+<td>Thử MP4 H.264; MOV/HEVC tùy trình duyệt. Bản mới có Range nhưng không tự chuyển codec.</td>
+</tr>
+<tr>
+<td>Upload vượt giới hạn</td>
+<td>Giảm dung lượng tệp hoặc nâng <code>MAX_UPLOAD_MB</code> có cân nhắc; demo chỉ chứa tổng 50 MB.</td>
+</tr>
+<tr>
+<td>Upload đứng 100%</td>
+<td>Máy chủ còn đợi Drive. Nếu lỗi hoặc hết thời gian, tải lại danh sách trước khi gửi lại.</td>
+</tr>
+<tr>
+<td>Mất phiên đăng nhập sau deploy</td>
+<td>Phiên ở RAM, dịch vụ restart nên cần nhập mật khẩu lại; ảnh thật trên Drive vẫn còn.</td>
+</tr>
+<tr>
+<td>Tên file hiển thị ký tự HTML</td>
+<td>Tên hiển thị dưới dạng chữ an toàn, không được thực thi thành mã.</td>
+</tr>
+</tbody>
+</table>
+<p>Nếu vẫn lỗi, lấy <strong>20–40 dòng cuối trong Logs</strong> và ghi lại Build Command, Start Command, Root Directory. Che token, client secret và mật khẩu trước khi gửi cho người hỗ trợ.</p>
+<h2 id="9-luu-y-ve-du-lieu-va-ban-sao">9. Lưu ý về dữ liệu và bản sao</h2>
+<p>Trong kho <code>appDataFolder</code>, Google không hỗ trợ thùng rác cho tệp, nên nút xóa của website xóa vĩnh viễn. Xác nhận trong website nêu rõ điều này. Tải bản sao tệp quan trọng về ổ riêng trước khi xóa. Kho ẩn vẫn có thể bị xóa khi bạn xóa dữ liệu ứng dụng trong cài đặt Drive hoặc gỡ quyền ứng dụng theo cơ chế Google; đừng coi website là bản sao duy nhất. <a href="https://developers.google.com/workspace/drive/api/guides/appdata">Google — App data constraints</a>.</p>
+<p>Không cần đặt ảnh thật vào repository. Mật khẩu website và token chỉ đặt trên Render hoặc máy cá nhân. ZIP bàn giao là mã nguồn sạch; bạn bổ sung bí mật của mình khi triển khai.</p>
+<h2 id="10-toc-o-tai-va-o-net-cua-anh">10. Tốc độ tải và độ nét của ảnh</h2>
+<p>Lưới ảnh ở bản trước gọi bản gốc cho mỗi thẻ. Với hàng chục ảnh dung lượng lớn, máy chủ phải tải nhiều dữ liệu từ Google rồi gửi tiếp tới trình duyệt. Bản này có đường <code>/preview/</code> riêng, dùng thumbnail Google khi có, hoặc tạo JPEG xem trước tối đa 800 px ở cạnh dài; ảnh ngoài vùng nhìn vẫn được tải khi cần. Thumbnail Google được lấy qua máy chủ có đăng nhập, theo hướng dẫn proxy ở <a href="https://developers.google.com/workspace/drive/api/reference/rest/v3/files">Google Drive — thumbnailLink</a>.</p>
+<p><strong>Cửa sổ xem và nút tải về vẫn dùng <code>/stream/</code> trả đúng file gốc</strong>, không chuyển thành JPEG xem trước. Kiểm tra tự động đã so sánh nội dung trước/sau và xác nhận nguyên dữ liệu. Khi tải xong, dòng trợ giúp ghi “Bản gốc”; nút <strong>1:1</strong> hiển thị ở độ phân giải gốc. Phóng vượt 100% làm pixel lớn hơn, không tạo thêm độ nét.</p>
+<p>Bộ nhớ đệm ảnh xem trước trên máy chủ giới hạn 24 MB, tối đa 256 mục, giữ 5 phút; metadata Drive giữ tối đa 60 giây để giảm một lượt hỏi thông tin cho từng ảnh. Khi sửa hoặc xóa từ website, cache liên quan được bỏ. Trình duyệt có thể dùng lại ảnh nhưng phải xác thực lại trước khi nhận phản hồi 304. Đây là cache riêng, không công khai ảnh qua CDN và không làm ảnh thành link chia sẻ công khai. Cache trong RAM mất sau restart/deploy, ảnh thật trên Drive vẫn giữ nguyên.</p>
+<p>Nếu Drive chưa tạo thumbnail, lần đầu phải tải bản gốc về máy chủ để thu nhỏ; các lần sau hưởng cache. Để giới hạn RAM của gói nhỏ, chỉ tự tạo preview cho nguồn tối đa 20 MB và 40 megapixel. Định dạng không đọc được hoặc vượt giới hạn hiện nút mở/tải; <strong>bản gốc vẫn xem được nếu trình duyệt hỗ trợ</strong>. GIF xem trước là khung đầu; mở ảnh gốc vẫn giữ hoạt ảnh. Có thể chỉnh <code>previewSize</code> trong <code>static/settings.js</code> từ 200–1200; chỉ tác động bản xem trước, không đổi dữ liệu ảnh lưu trên Drive.</p>
+<p>Chưa đo tốc độ trên Drive và dịch vụ Render của bạn, nên không hứa một số giây hay phần trăm nhanh hơn. Nếu cả trang đăng nhập cũng chậm ở lần mở sau thời gian nghỉ, kiểm tra thời gian khởi động lại của Render Free. Nếu chỉ ảnh gốc chậm, thời gian còn phụ thuộc dung lượng ảnh, mạng từ Google tới Render và mạng tới thiết bị; tải nguyên file lớn luôn cần băng thông. Có thể đo một ảnh điển hình trong tab Network của trình duyệt sau khi deploy để phân biệt thời gian chờ máy chủ và thời gian tải dữ liệu.</p><div class="footer">Tài liệu đi kèm bản ZIP. Không cần Internet để đọc; các liên kết nguồn cần kết nối mạng.</div></main></body></html>

@@ -1,0 +1,219 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tự chỉnh website · Zoom, info và bảng màu</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f6fb;color:#2d2437;font:15px/1.85 "Segoe UI",Arial,sans-serif}aside{position:fixed;inset:0 auto 0 0;width:255px;padding:32px 22px;background:#17131f;color:#cfc6dc;overflow:auto}aside strong{display:block;color:#c1a2f1;font-size:21px;margin-bottom:8px}aside small{font-size:11px;color:#9788a9}.toc ul{list-style:none;padding:0;margin-top:32px}.toc li{margin:14px 0;font-size:12px;line-height:1.6}.toc a{color:#cfc6dc;text-decoration:none}.toc a:hover{color:white}main{max-width:1100px;margin-left:255px;padding:48px 55px 80px}h1{font:400 36px/1.3 Cambria,Georgia,serif;color:#271c35;margin:10px 0 20px}h2{font-size:24px;line-height:1.4;margin:55px 0 16px;border-top:1px solid #e2d9ec;padding-top:25px;scroll-margin-top:25px}h3{font-size:18px;margin:30px 0 12px;color:#614681}a{color:#8155b4}p{margin:14px 0}li{margin:8px 0}code{font-family:Consolas,monospace;font-size:13px;background:#ece5f4;color:#563d75;padding:2px 4px;border-radius:4px}pre{background:#211a2c;color:#e8dfef;padding:18px 22px;border-radius:11px;overflow:auto;font-size:13px;line-height:1.7}pre code{background:none;color:inherit;padding:0;white-space:pre}table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow:auto;margin:24px 0}th{background:#ece5f4;text-align:left;color:#5b427b}th,td{padding:12px 15px;border:1px solid #ded3e9}td:first-child{min-width:170px}blockquote{padding:8px 20px;border-left:3px solid #a480cf;background:#f0eaf6}.doc-label{font-size:11px;color:#9774ba;letter-spacing:2px}.footer{border-top:1px solid #ddd2e8;margin-top:45px;padding-top:20px;font-size:12px;color:#82728f}@media(max-width:850px){aside{position:relative;width:auto;max-height:none;padding:24px}.toc ul{margin-top:15px}.toc li{margin:8px 0}main{margin:0;padding:30px 24px}h1{font-size:29px}h2{font-size:22px}}@media print{aside{display:none}main{margin:0;padding:0;max-width:none}body{background:white;font-size:11px}h1{font-size:25px}h2{font-size:18px;margin-top:20px;break-after:avoid}pre{white-space:pre-wrap;background:#f3eef8;color:#241b2e;border:1px solid #d6c9e4}pre code{white-space:pre-wrap}table{font-size:10px}a{color:#563d75}}</style></head><body><aside><strong>Taylor’s Vault</strong><small>HƯỚNG DẪN CHI TIẾT · 01/10/2026</small><div class="toc">
+<ul>
+<li><a href="#1-hai-file-ban-can-biet">1. Hai file bạn cần biết</a></li>
+<li><a href="#2-oi-ten-va-loi-gioi-thieu">2. Đổi tên và lời giới thiệu</a></li>
+<li><a href="#3-oi-cach-zoom-va-info">3. Đổi cách zoom và info</a></li>
+<li><a href="#4-nhung-gi-info-co-the-hien-thi">4. Những gì info có thể hiển thị</a></li>
+<li><a href="#5-oi-mau-website">5. Đổi màu website</a></li>
+<li><a href="#6-sua-tren-github-roi-cap-nhat-render">6. Sửa trên GitHub rồi cập nhật Render</a></li>
+<li><a href="#7-neu-sua-xong-bi-loi">7. Nếu sửa xong bị lỗi</a></li>
+</ul>
+</div>
+</aside><main><span class="doc-label">MÃ NGUỒN · GOOGLE DRIVE · GITHUB · RENDER</span><h1 id="tu-chinh-website-ten-mau-zoom-va-thong-tin-anh">Tự chỉnh website: tên, màu, zoom và thông tin ảnh</h1>
+<p>Bản cập nhật ngày <strong>01/10/2026</strong>. Bạn có thể chỉnh các mục dưới đây trực tiếp trên GitHub, không cần học toàn bộ mã nguồn. Giữ một bản ZIP dự phòng trước khi sửa.</p>
+<h2 id="1-hai-file-ban-can-biet">1. Hai file bạn cần biết</h2>
+<table>
+<thead>
+<tr>
+<th>Muốn thay đổi</th>
+<th>File cần mở trong repository</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tên website, tên chủ kho, lời giới thiệu, chữ nút tải ảnh</td>
+<td><code>static/settings.js</code></td>
+</tr>
+<tr>
+<td>Zoom tối đa, bước zoom, ảnh lưới, tự mở info, ẩn/hiện thông số máy ảnh</td>
+<td><code>static/settings.js</code></td>
+</tr>
+<tr>
+<td>Màu nền, màu chữ, màu tím của nút</td>
+<td><code>static/tokens.css</code></td>
+</tr>
+<tr>
+<td>Các chữ còn lại trên trang đăng nhập hoặc tiêu đề menu</td>
+<td><code>index.html</code> — chỉ sửa chữ giữa các thẻ, giữ <code>id</code>, <code>class</code> và các thuộc tính</td>
+</tr>
+</tbody>
+</table>
+<p>Hai file cấu hình có chú thích tiếng Việt ngay cạnh các giá trị. Bạn không cần chỉnh <code>main.py</code> để đổi giao diện. Các file trong <code>static</code> được trình duyệt tải công khai: mật khẩu và token Google phải đặt trong <strong>Environment của Render</strong>, không đặt trong file cấu hình giao diện.</p>
+<h2 id="2-oi-ten-va-loi-gioi-thieu">2. Đổi tên và lời giới thiệu</h2>
+<p>Mở <code>static/settings.js</code>. Ví dụ đổi tên kho và nội dung trang chính bằng cách sửa các dòng tương ứng:</p>
+<pre><code class="language-javascript">brandName: &quot;Kho kỷ niệm của tôi&quot;,
+ownerName: &quot;Taylor&quot;,
+heroTitle: &quot;Gom những khoảnh khắc&quot;,
+heroAccent: &quot;mình yêu.&quot;,
+heroDescription: &quot;Những chuyến đi và những ngày bình yên.\nMột góc nhỏ để nhớ mãi.&quot;,
+uploadButtonText: &quot;Thêm ảnh và video&quot;,
+</code></pre>
+<p>Đây là <strong>các dòng để thay trong file sẵn có</strong>, không thay toàn bộ file bằng đoạn trên. Giữ dòng mở <code>window.VAULT_SETTINGS = {</code> và dòng đóng <code>};</code>.</p>
+<p><code>brandName</code> đổi logo chữ, tên tab trình duyệt và tên ở cuối trang. <code>ownerName</code> đổi chữ cái trong avatar và nhãn của nó. <code>heroTitle</code>, <code>heroAccent</code>, <code>heroDescription</code> đổi phần giới thiệu bên trong thư viện. Các lời chào riêng trên màn hình đăng nhập vẫn nằm trong <code>index.html</code>.</p>
+<p>Giữ dấu nháy kép <code>"..."</code> quanh nội dung và dấu phẩy cuối dòng. Nếu cần dấu nháy kép bên trong chữ, viết <code>\"</code>; dấu nháy đơn trong <code>Taylor's</code> có thể viết bình thường. <code>\n</code> là ký hiệu xuống dòng; không gõ Enter giữa một chuỗi đang mở dấu nháy.</p>
+<h2 id="3-oi-cach-zoom-va-info">3. Đổi cách zoom và info</h2>
+<p>Trong cùng file <code>static/settings.js</code>, sửa giá trị tương ứng:</p>
+<table>
+<thead>
+<tr>
+<th>Cài đặt</th>
+<th>Ví dụ</th>
+<th>Tác dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>zoomMaxPercent</code></td>
+<td><code>800</code></td>
+<td>Phóng tối đa 8 lần kích thước gốc; có thể đặt từ 100 đến 1600</td>
+</tr>
+<tr>
+<td><code>zoomStep</code></td>
+<td><code>1.25</code></td>
+<td>Nút + nhân mức hiện tại với 1,25; nút − chia cho 1,25. Khoảng hợp lệ 1.05–2</td>
+</tr>
+<tr>
+<td><code>showCameraMetadata</code></td>
+<td><code>true</code></td>
+<td>Hiện máy ảnh, ISO, khẩu độ… khi Drive có dữ liệu; <code>false</code> ẩn nhóm này</td>
+</tr>
+<tr>
+<td><code>defaultInfoOpen</code></td>
+<td><code>false</code></td>
+<td><code>true</code> tự mở info mỗi lần mở cửa sổ xem; <code>false</code> mở bằng nút ⓘ</td>
+</tr>
+<tr>
+<td><code>defaultTheme</code></td>
+<td><code>"dark"</code></td>
+<td>Giao diện mặc định tối; đổi thành <code>"light"</code> để sáng</td>
+</tr>
+<tr>
+<td><code>previewSize</code></td>
+<td><code>800</code></td>
+<td>Cạnh dài tối đa bản xem trước ở lưới, từ 200–1200 px; không thay đổi ảnh gốc</td>
+</tr>
+</tbody>
+</table>
+<p>Ví dụ muốn zoom tối đa 1200%, bấm + tăng 50% và luôn mở info:</p>
+<pre><code class="language-javascript">zoomMaxPercent: 1200,
+zoomStep: 1.5,
+showCameraMetadata: true,
+defaultInfoOpen: true
+</code></pre>
+<p>Số và <code>true</code> / <code>false</code> không đặt trong dấu nháy. Dùng dấu chấm trong <code>1.5</code>, không dùng dấu phẩy <code>1,5</code>. Dòng cuối trong cấu hình không cần dấu phẩy; các dòng trước nó cần dấu phẩy.</p>
+<p>Website nhớ lựa chọn sáng/tối trên từng trình duyệt. Nếu đã chọn trước đây, lựa chọn đó được ưu tiên hơn <code>defaultTheme</code>; bấm biểu tượng mặt trời để đổi. Có thể dùng cửa sổ riêng tư để kiểm tra mặc định mới.</p>
+<p>Zoom 100% nghĩa là một pixel ảnh tương ứng một pixel CSS trên màn hình; nút <strong>Vừa khung</strong> có thể có tỷ lệ thấp hơn với ảnh lớn. Zoom không tạo thêm chi tiết. Video dùng thanh điều khiển riêng và không có thanh zoom ảnh.</p>
+<p><strong>Giữ ảnh nét như bản trên Drive:</strong> khi bấm mở ảnh, cửa sổ xem luôn tải file gốc, không dùng bản đã nén làm ảnh cuối cùng. Bản nhẹ hiện tạm trong lúc chờ; dòng “Đang tải bản gốc” đổi thành “Bản gốc” khi xong. Bấm <strong>1:1</strong> để kiểm tra chi tiết ở độ phân giải gốc. Nút tải về cũng lấy nguyên file gốc. Lưới ảnh dùng bản xem trước để trang mở nhanh hơn.</p>
+<p><code>previewSize</code> là giới hạn của ảnh lưới, không bảo đảm thumbnail Drive có đủ độ phân giải đó. Nếu muốn lưới tải nhẹ hơn, giảm xuống <code>400</code>; nếu muốn bản xem trước tự tạo rõ hơn trên màn hình lớn, tăng lên <code>1200</code>. Xem thêm giới hạn và bộ nhớ đệm ở mục 10 của hướng dẫn triển khai.</p>
+<h2 id="4-nhung-gi-info-co-the-hien-thi">4. Những gì info có thể hiển thị</h2>
+<p>Bấm ảnh rồi bấm <strong>ⓘ</strong>, hoặc nhấn <strong>I</strong>. Bấm dấu × bên trong bảng để đóng info mà vẫn xem ảnh.</p>
+<ul>
+<li>Thông tin cơ bản: tên, album, dung lượng, định dạng, kích thước, megapixel và ngày tải lên.</li>
+<li>Thông số chụp: máy ảnh, ống kính, thời gian chụp EXIF, khẩu độ, tốc độ màn trập, ISO, tiêu cự, cân bằng trắng, không gian màu.</li>
+<li>Video: kích thước và thời lượng khi trình duyệt hoặc Drive đọc được.</li>
+</ul>
+<p>Thông số chụp chỉ hiện khi Google Drive cung cấp; ảnh chụp màn hình, PNG hoặc ảnh gửi qua ứng dụng đã xóa EXIF thường thiếu thông tin. Nếu chỉ có vài thông số thì chỉ hiện những mục đó. Không thể tạo lại ISO/khẩu độ thật bằng cách sửa tên ảnh. Website không yêu cầu tọa độ GPS. Các trường metadata dùng theo <a href="https://developers.google.com/workspace/drive/api/reference/rest/v3/files">Google Drive — Files reference</a>.</p>
+<p>Ngày tải lên được lấy từ ngày tạo tệp trong kho Drive; thời gian chụp EXIF là dữ liệu riêng và có thể không kèm múi giờ. Kích thước trên ảnh là kích thước trình duyệt đọc được; nếu trình duyệt không mở được định dạng, website dùng metadata Drive khi có. Hình demo SVG là hình vector, nên chỉ hiện kích thước hiển thị, không báo megapixel như ảnh chụp.</p>
+<p>Muốn đổi nhãn như “Dung lượng” hoặc “Khẩu độ”, tìm hàm <code>renderInfo</code> trong <code>static/app.js</code> và chỉ đổi chuỗi chữ tương ứng. Đây là chỉnh sửa nâng cao hơn; sao lưu trước và giữ nguyên tên biến như <code>meta.isoSpeed</code>. Thêm trường metadata mới có thể cần chỉnh cả <code>storage.py</code>, nên không chỉ thêm một dòng chữ trong HTML.</p>
+<h2 id="5-oi-mau-website">5. Đổi màu website</h2>
+<p>Mở <code>static/tokens.css</code>. Khối <code>:root</code> là màu giao diện tối; khối <code>[data-theme="light"]</code> là màu giao diện sáng.</p>
+<table>
+<thead>
+<tr>
+<th>Tên màu</th>
+<th>Dùng cho</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--accent</code></td>
+<td>Chữ nhấn, nút và biểu tượng chính</td>
+</tr>
+<tr>
+<td><code>--bg</code></td>
+<td>Nền website</td>
+</tr>
+<tr>
+<td><code>--sidebar</code></td>
+<td>Nền menu bên trái</td>
+</tr>
+<tr>
+<td><code>--card</code></td>
+<td>Nền thẻ ảnh</td>
+</tr>
+<tr>
+<td><code>--text</code></td>
+<td>Chữ chính</td>
+</tr>
+<tr>
+<td><code>--muted</code></td>
+<td>Chữ phụ</td>
+</tr>
+<tr>
+<td><code>--border</code></td>
+<td>Đường viền</td>
+</tr>
+<tr>
+<td><code>--accent-dim</code>, <code>--active-border</code>, <code>--focus</code></td>
+<td>Nền nhạt, viền mục được chọn, vòng focus</td>
+</tr>
+</tbody>
+</table>
+<p>Ví dụ muốn đổi điểm nhấn từ tím sang xanh trên giao diện tối, thay các dòng tương ứng <strong>trong khối <code>:root</code></strong>:</p>
+<pre><code class="language-css">--accent: #91c8f6;
+--accent-dim: #91c8f612;
+--active-border: #91c8f631;
+--focus: #91c8f624;
+</code></pre>
+<p>Trong khối giao diện sáng có thể dùng màu đậm hơn, ví dụ <code>--accent: #28679e;</code>. Mã màu có 8 ký tự sau <code>#</code> dùng hai ký tự cuối làm độ trong suốt. Giữ dấu chấm phẩy <code>;</code> cuối dòng và giữ đủ dấu <code>{</code> / <code>}</code>.</p>
+<p>Một số màu trong cửa sổ xem ảnh được đặt riêng để luôn dễ nhìn trên nền tối. Nếu muốn chỉnh riêng phần đó, tìm <code>.viewer</code> trong <code>static/style.css</code>. Đổi <code>--accent</code> vẫn tác động nhiều nút và điểm nhấn ở cửa sổ này, nhưng không đổi toàn bộ nền info/zoom.</p>
+<h2 id="6-sua-tren-github-roi-cap-nhat-render">6. Sửa trên GitHub rồi cập nhật Render</h2>
+<ol>
+<li>Giải nén bản ZIP mới. Đưa toàn bộ mã trong <code>gallery-updated</code> lên repository đang kết nối Render. Bản này đổi cả <code>main.py</code>, <code>storage.py</code>, thêm <code>previews.py</code> và thư viện Pillow trong <code>requirements.txt</code>, đồng thời đổi <code>index.html</code> và <code>static</code>. Đừng chỉ tải <code>settings.js</code> vì bản cũ chưa có zoom/info và bộ nhớ đệm.</li>
+<li>Mở file muốn chỉnh trên GitHub, bấm biểu tượng bút <strong>Edit this file</strong>.</li>
+<li>Đổi các giá trị theo ví dụ, kiểm tra dấu nháy, dấu phẩy và dấu ngoặc.</li>
+<li>Bấm <strong>Commit changes</strong> và lưu vào branch dịch vụ Render đang dùng (log của bạn là <code>main</code>).</li>
+<li>Nếu bật Auto-Deploy <strong>On Commit</strong>, Render sẽ chạy lại sau commit. Nếu để <strong>Off</strong>, mở Render, chọn <strong>Manual Deploy → Deploy latest commit</strong>. Cơ chế này theo <a href="https://render.com/docs/deploys">Render — Deploys</a>.</li>
+<li>Chờ trạng thái <strong>Live</strong>, mở website và nhấn <strong>Ctrl+F5</strong>. Trên điện thoại, tải lại trang hoặc đóng tab rồi mở lại.</li>
+<li>Kiểm tra tiêu đề, zoom và info bằng một ảnh JPEG/PNG. Ảnh có EXIF mới kiểm tra được nhóm thông số chụp.</li>
+</ol>
+<p>Trong log bạn gửi, build đã xong nhưng <strong>Start Command đang chứa cả dòng bảng Markdown</strong>. Hãy mở <strong>Render → Settings → Start Command</strong>, xóa hết nội dung rồi dán đúng dòng trong khung dưới:</p>
+<pre><code class="language-text">uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips '*'
+</code></pre>
+<p>Chỉ dán dòng bắt đầu bằng <code>uvicorn</code>, không kèm tiêu đề ô, dấu <code>|</code> hoặc dấu nháy ngược. Giữ dấu nháy đơn quanh <code>*</code>. Lưu rồi deploy lại. Dòng này phù hợp cấu hình Python Web Service theo <a href="https://render.com/docs/deploy-fastapi">Render — Deploy FastAPI</a>.</p>
+<h2 id="7-neu-sua-xong-bi-loi">7. Nếu sửa xong bị lỗi</h2>
+<table>
+<thead>
+<tr>
+<th>Hiện tượng</th>
+<th>Cách kiểm tra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sửa tên mà website không đổi</td>
+<td>Kiểm tra commit đã deploy, đúng branch, <code>settings.js</code> đã được upload; tải lại bằng Ctrl+F5</td>
+</tr>
+<tr>
+<td>Giao diện đứng sau khi sửa settings</td>
+<td>Kiểm tra dấu phẩy giữa các dòng, dấu nháy và dòng đóng <code>};</code>; xem lỗi đầu tiên trong Console của trình duyệt</td>
+</tr>
+<tr>
+<td>Màu không đổi</td>
+<td>Kiểm tra đang dùng sáng hay tối và đã sửa đúng khối màu; giữ dấu <code>;</code></td>
+</tr>
+<tr>
+<td>EXIF không hiện</td>
+<td>Kiểm tra <code>showCameraMetadata: true</code>; thử ảnh gốc có EXIF, tải lại danh sách bằng nút làm mới; không phải mọi ảnh đều có metadata</td>
+</tr>
+<tr>
+<td>Zoom quá nhỏ khi bấm 1:1</td>
+<td>Ảnh gốc có thể nhỏ. Dùng + để phóng hoặc kiểm tra kích thước trong info</td>
+</tr>
+<tr>
+<td>Deploy báo lỗi ký tự <code>|</code></td>
+<td>Sửa ô Start Command trực tiếp trong Render như bước 6</td>
+</tr>
+</tbody>
+</table>
+<p>Nếu cần hoàn tác, mở lịch sử file trên GitHub, lấy lại nội dung phiên bản trước hoặc dùng bản ZIP dự phòng, commit và deploy lại. Hướng dẫn kết nối Google, biến môi trường và triển khai đầy đủ nằm trong <a href="HUONG_DAN.html">HUONG_DAN.html</a> / <a href="HUONG_DAN.md">HUONG_DAN.md</a>.</p><div class="footer">Tài liệu đi kèm bản ZIP. Không cần Internet để đọc; các liên kết nguồn cần kết nối mạng.</div></main></body></html>
